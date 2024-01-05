@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's fantastic to meet you. I see that you're studying Computer Science at Duke University. That's really impressive. How can I assist you today with your passion for Artificial Intelligence?"
+  }
+]

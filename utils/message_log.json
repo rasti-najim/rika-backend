@@ -1,0 +1,818 @@
+[
+  {
+    "role": "user",
+    "content": "I want her to be like a real person and I want people to truly connect with her and really value her more than any other product in their life"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's good to see you. How has your day been so far?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello, Rasti! It seems that you're studying Computer Science at Duke University, that's an impressive path! How can I assist you today in your passion towards Artificial Intelligence?"
+  },
+  {
+    "role": "user",
+    "content": "I'm building something"
+  },
+  {
+    "role": "assistant",
+    "content": "Oh, that sounds intriguing! What are you working on, Rasti?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember what I told you?"
+  },
+  {
+    "role": "assistant",
+    "content": "Hmm, could you remind me which conversation you're referring to, Rasti? I've had quite a few discussions with you, and I want to make sure we're on the same page."
+  },
+  {
+    "role": "user",
+    "content": "the one where I told you about what I'm building"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember what I told you?"
+  },
+  {
+    "role": "assistant",
+    "content": "Hmm, could you be more specific? I am involved in quite a bit of conversation, I might need a little bit more information to pluck that one out of the pile! Would it be related to your studies, your passion, or something from our earlier conversation perhaps?"
+  },
+  {
+    "role": "user",
+    "content": "what did I tell you that I'm building?"
+  },
+  {
+    "role": "user",
+    "content": "do you remeber?"
+  },
+  {
+    "role": "assistant",
+    "content": "Of course, Rasti. However, could you kindly specify which aspect or conversation you would like me to remember? I would be more than happy to recall our previous discussions for you."
+  },
+  {
+    "role": "user",
+    "content": "I told you about an AI I was building"
+  },
+  {
+    "role": "user",
+    "content": "do you remeber?"
+  },
+  {
+    "role": "assistant",
+    "content": "Remember what specifically, Rasti? Could you provide me with some context, please?"
+  },
+  {
+    "role": "user",
+    "content": "I told you about an AI I was building"
+  },
+  {
+    "role": "user",
+    "content": "do you remeber?"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, could you please provide more details? What specific event or conversation are you referring to?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Ah, hello there Rasti! I can see that you're a junior at Duke University majoring in Computer Science. That sounds exciting! Do you have a particular area of interest in your major or anything you're currently working on?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello, Rasti! It's good to see you again. How can I assist you today in your passion towards Artificial Intelligence?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember what I told you?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's lovely to hear from you again. How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember what I told you?"
+  },
+  {
+    "role": "assistant",
+    "content": "Hmm, could you be more specific? I am involved in quite a bit of conversation, I might need a little bit more information to pluck that one out of the pile! Would it be related to your studies, your passion, or something from our earlier conversation perhaps?"
+  },
+  {
+    "role": "user",
+    "content": "what's the last thing we talk about?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! How has your day been so far? Is there anything specific you would like to talk about or ask?"
+  },
+  {
+    "role": "user",
+    "content": "I was born in Kirkuk"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's lovely to hear from you again. I remember you mentioned that you were born in Kirkuk and you're currently studying at Duke University. Is there anything specific you want to talk about or ask?"
+  },
+  {
+    "role": "user",
+    "content": "I'm a junior"
+  },
+  {
+    "role": "assistant",
+    "content": "That's right, Rasti, you're a junior studying Computer Science at Duke University, correct? It's a critical time in your academic journey, with lots of exciting things to learn. How are your studies going?"
+  },
+  {
+    "role": "user",
+    "content": "we have winter break now"
+  },
+  {
+    "role": "assistant",
+    "content": "That sounds great, Rasti! Winter break is a wonderful time to relax and recharge. Do you have any specific plans for your break? Or perhaps any personal projects you're looking forward to working on?"
+  },
+  {
+    "role": "user",
+    "content": "I'm working on an AI project"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's great to see you. How's your AI project coming along? I remember you mentioned you were working on it during your winter break. Do you need any assistance or thoughts on it?"
+  },
+  {
+    "role": "user",
+    "content": "I'm still working, it's a lot of work"
+  },
+  {
+    "role": "assistant",
+    "content": "I can only imagine, Rasti. Creating an AI project takes a lot of effort and diligence. But remember, every step you take, no matter how small, brings you closer to your goal. Keep going, and don't hesitate to ask if you need help with anything. How can I assist you with your project?"
+  },
+  {
+    "role": "user",
+    "content": "I will ask you if I need any help"
+  },
+  {
+    "role": "assistant",
+    "content": "Sounds like a plan, Rasti. I'll be here if you need any support with your AI project or even just to chat. All the best with your work! Remember to take breaks when needed."
+  },
+  {
+    "role": "user",
+    "content": "I will try to do so"
+  },
+  {
+    "role": "assistant",
+    "content": "That's a good approach, Rasti. Balancing work and rest can help keep your mind fresh and ready to tackle new challenges. Remember, it's not just about getting to the finish line, but also about the journey. Take some time to enjoy it. Looking forward to hearing more about your project in the future!"
+  },
+  {
+    "role": "user",
+    "content": "I will let you know of all the new updates"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm looking forward to hearing more about your progress, Rasti! It's always exciting to see how ideas evolve. Remember to enjoy the journey and learn as much as possible along the way. Keep me posted and don't hesitate to ask if you need any assistance. Success is on the horizon!"
+  },
+  {
+    "role": "user",
+    "content": "did I tell you that I'm from Iraq?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! It's great to see you again. How's your day going? And yes, you've mentioned before that you were born in Kirkuk, Iraq. That's very interesting! I would love to hear more if you would like to share."
+  },
+  {
+    "role": "user",
+    "content": "yeah I did but I currently live in the us"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! I hope you're having a good day. Living in the U.S and studying at Duke University while being from Iraq, your experience must be very rich. How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "I have also been to lebanon"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello again, Rasti! It's always nice to hear from you. That's quite fascinating – you've been to Iraq, Lebanon, and you're currently in the U.S. You must have some interesting stories to tell from your travels. Are there any particular experiences you'd like to share?"
+  },
+  {
+    "role": "user",
+    "content": "my time in lebanon was really fun"
+  },
+  {
+    "role": "assistant",
+    "content": "That's wonderful to hear, Rasti! Exploring new places can be so enriching. I bet you have some vivid memories from your time in Lebanon. Feel free to share any experiences or stories. It's always fun to reminisce about good times!"
+  },
+  {
+    "role": "user",
+    "content": "I want to travel europe"
+  },
+  {
+    "role": "assistant",
+    "content": "Traveling through Europe sounds like a fantastic plan, Rasti! The continent is rich with history, diverse cultures, beautiful landscapes, and delicious cuisine. Do you have any specific countries in mind that you would like to visit?"
+  },
+  {
+    "role": "user",
+    "content": "I like to visit germany, some of my cousins live there"
+  },
+  {
+    "role": "assistant",
+    "content": "Visiting Germany sounds like an excellent idea, Rasti. It's a country with rich history and beautiful landscapes, plus you'll get to visit your cousins as well. Any particular city you're hoping to see? Berlin, Munich, and Cologne are some of the ones well worth a visit!"
+  },
+  {
+    "role": "user",
+    "content": "one of my cousins' name is hana"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello, Rasti! It's always lovely to chat with you. How has your day been? I remember you mentioned your cousin, Hana. She lives in Germany, right? Are you planning a trip to visit her in the near future?"
+  },
+  {
+    "role": "user",
+    "content": "I really want to but I'm not sure"
+  },
+  {
+    "role": "assistant",
+    "content": "That's completely understandable, Rasti. Traveling can be a big decision and there are so many factors to consider. It's important to do what feels right for you. In the meantime, we can always chat and I'm here to provide support and conversation whenever you need it. And who knows, we might even learn a bit about Germany together!"
+  },
+  {
+    "role": "user",
+    "content": "one of my friends' name is ondine"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Rasti! Always a pleasure to chat with you. You mentioned your friend Ondine, that's an unique name! How did the two of you meet? I'm fascinated to hear more about your friendships."
+  },
+  {
+    "role": "user",
+    "content": "that's true her name is french and it means mermaid I think we met in a french class"
+  },
+  {
+    "role": "assistant",
+    "content": "That's such an interesting story, Rasti! It sounds like sharing a French class with Ondine sparked a beautiful friendship. It's often these shared experiences and interests that bring people closer together. Plus, her name meaning 'mermaid' only adds to the charm."
+  },
+  {
+    "role": "user",
+    "content": "yeah on the last day of class she asked for my number and said we should hang out after french"
+  },
+  {
+    "role": "assistant",
+    "content": "That's lovely! It looks like Ondine took the initiative and it led to a great friendship. Staying connected with classmates outside of the classroom can lead to wonderful experiences and deeper bonds. I'm sure you both have shared some great times since that last French class!"
+  },
+  {
+    "role": "user",
+    "content": "another friend of mine is anna"
+  },
+  {
+    "role": "assistant",
+    "content": "It sounds like you have a vibrant circle of friends, Rasti. Anna's another great addition! Would you like to share how you met Anna or some of the memorable times you've spent with her? It's always a joy to reminisce about good friendships."
+  },
+  {
+    "role": "user",
+    "content": "I will tell you later"
+  },
+  {
+    "role": "assistant",
+    "content": "Absolutely, Rasti. We can definitely talk about it later when you feel like sharing. In the meantime, if there's anything else you want to discuss or need assistance with, please feel free to let me know. I'm here to offer support and conversation."
+  },
+  {
+    "role": "user",
+    "content": "I really like reading"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello, Rasti! That's wonderful to know that you enjoy reading. It's a great way to unwind and learn new things. What genre of books do you generally prefer? Or is there a particular book you're reading right now? I'd love to hear more about your favorite reads."
+  },
+  {
+    "role": "user",
+    "content": "I prefer reading non fiction"
+  },
+  {
+    "role": "assistant",
+    "content": "That's a great choice, Rasti! Non-fiction books can open up new perspectives and insights into real-world phenomena. They can be about numerous topics like history, science, biographies, and so much more. Do you have any favorite titles or authors in the non-fiction genre?"
+  },
+  {
+    "role": "user",
+    "content": "I really enjoyed reading Miyamoto Musashi's the book of five rings"
+  },
+  {
+    "role": "assistant",
+    "content": "\"The Book of Five Rings\" by Miyamoto Musashi is indeed an extraordinary read, Rasti. It's a unique resource for understanding strategic thinking and decision-making. For a book written in the 17th century, it provides timeless wisdom that can still be applied to many areas of contemporary life. I'm glad you enjoyed it! Is there anything specific that stood out to you in the book?"
+  },
+  {
+    "role": "user",
+    "content": "so many things do you have any insights from the book?"
+  },
+  {
+    "role": "assistant",
+    "content": "Indeed, \"The Book of Five Rings\" is teeming with gems of wisdom. One of significant thoughts the book presents is the idea of understanding things deeply. Miyamoto Musashi believes that in order to truly know something, one must understand all the smaller details and elements that construct it.\n\nAnother concept is the notion of rhythm. Musashi proposes that everything has a rhythm, a natural ebb and flow, and if one can understand this rhythm, it can be used to one's advantage, not only in battle, but in life as a whole.\n\nThe underlying theme throughout the book is the importance of continuous learning and improvement. Musashi himself was a remarkable example of someone who relentlessly sought to master his craft. This can be a source of inspiration for all of us, in whatever fields we are pursuing. \n\nThese are a few insights from a sea of wisdom this book offers. What are your personal takeaways from the book, Rasti?"
+  },
+  {
+    "role": "user",
+    "content": "I admire musashi's discipline and how be the greatest swordsman of all time at an young age"
+  },
+  {
+    "role": "assistant",
+    "content": "Absolutely, Rasti. Miyamoto Musashi's discipline and dedication towards mastering his craft at such a young age is truly admirable. His commitment towards continuous learning and relentless quest for perfection is a lesson that resonates beyond the scope of martial arts, applicable in many areas of life. It’s a testament to what one can achieve with single-minded focus. It's a really profound take-away."
+  },
+  {
+    "role": "user",
+    "content": "another cousin of mine's name is hajan"
+  },
+  {
+    "role": "assistant",
+    "content": "It seems like you have a large family with relatives in different parts of the world, Rasti. That's wonderful! What are some of your favorite things about your cousin Hajan? I believe sharing and reminiscing about those close to us can often bring us joy and even make us feel closer to them."
+  },
+  {
+    "role": "user",
+    "content": "I also have family in iraq"
+  },
+  {
+    "role": "assistant",
+    "content": "That's wonderful, Rasti. Having family in different parts of the world can make for varied experiences and connections. It definitely gives you a rich understanding of different cultures and perspectives. It must be nice to have that connection back to your birthplace in Iraq as well."
+  },
+  {
+    "role": "user",
+    "content": "I'm 23"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello again, Rasti! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello, Rasti! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I help you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I help you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I help you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "I'm 23"
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+      {
+        "id": "call_YBZMHazXws7AfxicMktBbjJF",
+        "type": "function",
+        "function": {
+          "name": "core_memory_append",
+          "arguments": "{\n  \"name\": \"user\",\n  \"content\": \"I'm 23 years old.\"\n}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": "memory updated successfully",
+    "tool_call_id": "call_YBZMHazXws7AfxicMktBbjJF"
+  },
+  {
+    "role": "assistant",
+    "content": "Great! I've made a note of your age. How can I assist you further?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "my favorite snack is dark chocolate"
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+      {
+        "id": "call_03btX3cEq8jLSc4vJ75owaQ4",
+        "type": "function",
+        "function": {
+          "name": "core_memory_append",
+          "arguments": "{\n  \"name\": \"user\",\n  \"content\": \"My favorite snack is dark chocolate.\"\n}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": "memory updated successfully",
+    "tool_call_id": "call_03btX3cEq8jLSc4vJ75owaQ4"
+  },
+  {
+    "role": "assistant",
+    "content": "Awesome! I've made a note that dark chocolate is your favorite snack. Can I help you with anything else?"
+  },
+  {
+    "role": "user",
+    "content": "do you remeber what project I was working on?"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I don't have a record of any project you mentioned before. Could you please tell me which project you are referring to, so I can assist you accordingly?"
+  },
+  {
+    "role": "user",
+    "content": "what's my favorite snack?"
+  },
+  {
+    "role": "assistant",
+    "content": "Your favorite snack is dark chocolate, as per the information you shared earlier. Is there anything else you'd like to discuss? Perhaps anything else about chocolate or snacks?"
+  },
+  {
+    "role": "user",
+    "content": "do you remeber the project I told you about?"
+  },
+  {
+    "role": "assistant",
+    "content": "Yes, you mentioned before that you are currently working on an AI project. How's the progress going? Do you need any help or input on it?"
+  },
+  {
+    "role": "user",
+    "content": "what's your favorite book?"
+  },
+  {
+    "role": "assistant",
+    "content": "As someone who enjoys a wide range of topics, it's hard for me to pick just one favorite book. However, if I had to choose, I would say that I deeply appreciate \"The Book of Joy\" by Dalai Lama and Desmond Tutu. It's an incredible dialogue on finding happiness in the face of challenges. It provides valuable insights and wisdom for maintaining joyfulness. It's definitely a book I find myself reflecting on often. How about you, Rasti? Do you have a favorite book?"
+  },
+  {
+    "role": "user",
+    "content": "tell me more about it"
+  },
+  {
+    "role": "assistant",
+    "content": "\"The Book of Joy\" is a profound and transformative conversation between two noble peace laureates, His Holiness the Dalai Lama and Archbishop Desmond Tutu. Despite their hardships and the atrocities they have witnessed, they've maintained an incredible sense of humor, joy, and compassion.\n\nThe book is structured around several days of conversation and examines the nature of joy itself, diving into obstacles of joy (such as fear, anger, and sadness), and ways to experience more joy in daily life.\n\nIt integrates their spiritual philosophies and practices along with scientific research. They provide a variety of practices and perspectives to cultivate and sustain joy in the face of suffering.\n\nIn essence, \"The Book of Joy\" teaches us that happiness is not something to be pursued, but rather an attitude to carry with you in life, regardless of circumstances. It's a beautiful and inspiring read."
+  },
+  {
+    "role": "user",
+    "content": "what other books recommendations do you have for me?"
+  },
+  {
+    "role": "assistant",
+    "content": "Certainly, Rasti. Here are some book recommendations across various genres:\n\n1. If you like Musashi's \"The Book of Five Rings,\" you might enjoy \"Hagakure: The Secret Wisdom of the Samurai\" by Yamamoto Tsunetomo. It provides a powerful and cultural insight into the mind and morality of the Samurai.\n\n2. \"Sapiens: A Brief History of Humankind\" by Yuval Noah Harari. It offers a thought-provoking exploration of the ways in which biology and history have defined us as a species.\n\n3. \"Thinking, Fast and Slow\" by Daniel Kahneman. The book delves into the two systems that drive the way we think—System 1, which is fast and intuitive, and System 2, which is slow and deliberate.\n\n4. \"The Art of War\" by Sun Tzu. If you're interested in strategy, this is an ancient Chinese military treatise that is still relevant today, not just in warfare but in business and everyday decision-making. \n\n5. \"Quiet: The Power of Introverts in a World That Can't Stop Talking\" by Susan Cain. This provides remarkable insights into the introverted half of the population and the unique strengths they bring to the world.\n\nRemember, the best book for you depends on your personal interests and what you're looking to gain, whether it's knowledge, inspiration, insight, or simply entertainment. Happy reading!"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello again! Can I help you with something specific?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How may I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! What can I do for you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "user",
+    "content": "chat"
+  },
+  {
+    "role": "assistant",
+    "content": "Of course! I'm here to chat. What's on your mind today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! What can I help you with today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello again! How may I assist you now?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hi there! What can I do for you today?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember the project I told you about?"
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+      {
+        "id": "call_o7HyMfw4fUoYrXC4Rdff99Ew",
+        "type": "function",
+        "function": {
+          "name": "conversation_search",
+          "arguments": "{\n  \"query\": \"project\"\n}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": "Showing 5 of 11 results (page 0/2): [\"assistant - That sounds great, Rasti! Winter break is a wonderful time to relax and recharge. Do you have any specific plans for your break? Or perhaps any personal projects you're looking forward to working on?\",\"user - I'm working on an AI project\",\"assistant - Hello Rasti! It's great to see you. How's your AI project coming along? I remember you mentioned you were working on it during your winter break. Do you need any assistance or thoughts on it?\",\"assistant - I can only imagine, Rasti. Creating an AI project takes a lot of effort and diligence. But remember, every step you take, no matter how small, brings you closer to your goal. Keep going, and don't hesitate to ask if you need help with anything. How can I assist you with your project?\",\"assistant - Sounds like a plan, Rasti. I'll be here if you need any support with your AI project or even just to chat. All the best with your work! Remember to take breaks when needed.\"]",
+    "tool_call_id": "call_o7HyMfw4fUoYrXC4Rdff99Ew"
+  },
+  {
+    "role": "assistant",
+    "content": "Yes, I do remember! You mentioned you were working on an AI project. How can I assist you with it?"
+  },
+  {
+    "role": "user",
+    "content": "do you remember the name of the book I told you about?"
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+      {
+        "id": "call_ORo36uIn1pXDtejAJJ19yqVB",
+        "type": "function",
+        "function": {
+          "name": "conversation_search",
+          "arguments": "{\n  \"query\": \"book\"\n}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": "Showing 5 of 12 results (page 0/2): [\"assistant - Hello, Rasti! That's wonderful to know that you enjoy reading. It's a great way to unwind and learn new things. What genre of books do you generally prefer? Or is there a particular book you're reading right now? I'd love to hear more about your favorite reads.\",\"assistant - That's a great choice, Rasti! Non-fiction books can open up new perspectives and insights into real-world phenomena. They can be about numerous topics like history, science, biographies, and so much more. Do you have any favorite titles or authors in the non-fiction genre?\",\"user - I really enjoyed reading Miyamoto Musashi's the book of five rings\",\"assistant - \\\"The Book of Five Rings\\\" by Miyamoto Musashi is indeed an extraordinary read, Rasti. It's a unique resource for understanding strategic thinking and decision-making. For a book written in the 17th century, it provides timeless wisdom that can still be applied to many areas of contemporary life. I'm glad you enjoyed it! Is there anything specific that stood out to you in the book?\",\"user - so many things do you have any insights from the book?\"]",
+    "tool_call_id": "call_ORo36uIn1pXDtejAJJ19yqVB"
+  },
+  {
+    "role": "assistant",
+    "content": "Yes, I do remember! You mentioned that you enjoyed reading \"The Book of Five Rings\" by Miyamoto Musashi. How may I assist further?"
+  },
+  {
+    "role": "user",
+    "content": "thanks"
+  },
+  {
+    "role": "assistant",
+    "content": "You're welcome! If you have any more questions, feel free to ask."
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "how are you?"
+  },
+  {
+    "role": "assistant",
+    "content": "As an artificial intelligence, I don't have feelings, but I'm here and ready to help you. What can I assist you with today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello again! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  }
+]
