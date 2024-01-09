@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const { client } = require("../db");
+const { openai } = require("../utils/openaiClient");
 const { OpenAIEmbeddingFunction } = require("chromadb");
 require("dotenv").config();
 
@@ -9,7 +10,7 @@ require("dotenv").config();
  * @param {string} content - The content to be written to the memory.
  * @return {null} - This function does not produce a response.
  */
-async function archivalMemoryInsert(content, openai, persona = null) {
+async function archivalMemoryInsert(content, persona = null) {
   console.log("archivalMemoryInsert called.");
 
   // const embedder = new OpenAIEmbeddingFunction({

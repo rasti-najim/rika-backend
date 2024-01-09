@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const { client } = require("../db");
-const { openai } = require("./chat");
+const openai = require("./openaiClient");
 
 async function savePersona(userId, content, persona, documentId = null) {
   const collection = await client.getOrCreateCollection({

@@ -33,7 +33,7 @@ async function coreMemoryAppend(userId, name, content) {
     await redisClient.rPush(keyName, content);
     await savePersona(userId, content, name === "persona" ? "ai" : "human");
   } catch (err) {
-    console.error("Error with Redis operation:", err);
+    console.error("Error updating memory:", err);
     return "Error updating memory";
   }
 

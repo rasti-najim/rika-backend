@@ -15,6 +15,7 @@ const archivalMemoryInsert = require("../functions/archival_memory_insert");
 const archivalMemorySearch = require("../functions/archival_memory_search");
 const { client } = require("../db");
 const { redisClient } = require("../db");
+const openai = require("./openaiClient");
 const {
   appendFilesToFile,
   readFileContentsAsync,
@@ -31,8 +32,6 @@ const systemFile = path.join(__dirname, "../system/system.txt");
 const messagesFile = path.join(__dirname, "../utils/messages.json");
 
 const router = express.Router();
-
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 async function chat(data) {
   const { userId, systemMessage, message, time } = data;
@@ -195,13 +194,13 @@ async function handleToolCalls(userId, systemMessage, completion, messages) {
     "archival_memory_insert"
   ) {
     console.log("calling archival_memory_insert", arguments.content);
-    await archivalMemoryInsert(arguments.content, openai);
+    await archivalMemoryInsert(arguments.content);
   } else if (
     completion.choices[0].message.tool_calls[0].function.name ===
     "archival_memory_search"
   ) {
     console.log("calling archival_memory_search", arguments.query);
-    await archivalMemorySearch(arguments.query, openai);
+    await archivalMemorySearch(arguments.query);
   } else if (
     completion.choices[0].message.tool_calls[0].function.name ===
     "archival_memory_delete"
@@ -245,7 +244,4 @@ async function handleToolCalls(userId, systemMessage, completion, messages) {
   // }
 }
 
-module.exports = {
-  chat,
-  openai,
-};
+module.exports = chat;

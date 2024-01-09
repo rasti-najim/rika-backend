@@ -5,13 +5,14 @@ const socketIo = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
+const ngrok = require("@ngrok/ngrok");
 const app = express();
 
 // const chat = require("./routes/chat");
 const audio = require("./routes/audio");
 const auth = require("./routes/auth");
 
-const { chat, openai } = require("./utils/chat");
+const chat = require("./utils/chat");
 const handleShutdown = require("./utils/handle_shutdown");
 const fetchPersona = require("./utils/fetchPersona");
 const archivalMemoryInsert = require("./functions/archival_memory_insert");
@@ -34,12 +35,18 @@ const port = 8080;
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, "public")));
 // app.use("/chat", chat);
 app.use("/audio", audio);
 app.use("/auth", auth);
 
 // Create an HTTP server and pass the Express app
 const server = http.createServer(app);
+
+ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
+  console.log(`Ingress established at: ${listener.url()}`);
+  app.set("ngrokUrl", listener.url());
+});
 
 redisClient.connect().catch((err) => {
   console.error("Error connecting to Redis:", err);
@@ -99,8 +106,8 @@ io.on("connection", async (socket) => {
       const aiPersona = fs.readFileSync(aiFile, "utf8");
       console.log(humanPersona);
       console.log(aiPersona);
-      await savePersona(humanPersona, "human", openai);
-      await savePersona(aiPersona, "ai", openai);
+      await savePersona(humanPersona, "human");
+      await savePersona(aiPersona, "ai");
     } catch (err) {
       console.error("Error reading file:", err);
     }
@@ -115,7 +122,7 @@ process.on("SIGINT", () => {
   });
 });
 
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`Server running on http://localhost:${port}`);
 });
 

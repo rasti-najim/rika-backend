@@ -52,7 +52,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
     console.log(hashedPassword);
     const newUser = await pool.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id",
+      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
       [username, hashedPassword]
     );
     console.log(newUser);
@@ -134,7 +134,11 @@ router.post("/login", async (req, res) => {
           [user.id, hashedToken]
         );
 
-        res.send({ accessToken: accessToken, refreshToken: refreshToken });
+        res.send({
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          user: _.omit(user, ["password"]),
+        });
       } else {
         res.status(401).send("Invalid username or password");
       }

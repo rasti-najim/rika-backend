@@ -21,7 +21,9 @@ async function appendListsToString(userId) {
       0,
       -1
     );
+    console.log(humanListItems);
     const humanData = humanListItems.join("\n");
+    console.log(humanData);
     const formattedHumanData =
       '\n<human characters="17/2000">' + humanData + "</human>";
 

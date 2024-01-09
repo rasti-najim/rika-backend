@@ -11,6 +11,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@ffprobe-installer/ffprobe": "^2.1.2",
+    "@ngrok/ngrok": "^0.9.1",
     "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "chalk": "^5.3.0",
@@ -31,6 +32,7 @@
     "passport-local": "^1.0.0",
     "pg": "^8.11.3",
     "redis": "^4.6.12",
+    "replicate": "^0.25.2",
     "socket.io": "^4.7.2",
     "tiktoken": "^1.0.11",
     "uuid": "^9.0.1",
