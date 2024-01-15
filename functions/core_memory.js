@@ -1,29 +1,53 @@
 const fs = require("fs");
 const path = require("path");
+const debug = require("debug")("app:core_memory");
 const { redisClient } = require("../db");
 const { CHAT } = require("../constants/constants");
+const fetchPersona = require("../utils/fetchPersona");
 
-async function appendListsToString(userId) {
+async function createSystemMessage(userId) {
   try {
     // Retrieve all items in the AI list
-    const aiListItems = await redisClient.lRange(
-      `personas_ai_${userId}`,
-      0,
-      -1
-    );
-    const aiData = aiListItems.join("\n");
+    let aiListItems = await redisClient.lRange(`personas_ai_${userId}`, 0, -1);
+    debug("AI List Items:", aiListItems);
+
+    // Check if aiListItems is an array and not empty
+    if (!Array.isArray(aiListItems) || aiListItems.length === 0) {
+      aiListItems = await fetchPersona(userId, "ai");
+      debug("Fetched AI List Items:", aiListItems);
+    }
+
+    let aiData = "";
+    // Join the list into a string only if it's a non-empty array
+    if (Array.isArray(aiListItems) && aiListItems.length > 0) {
+      aiData = aiListItems.join("\n");
+      debug("AI Data:", aiData);
+    }
+
     const formattedAiData =
       '<persona characters="317/2000">' + aiData + "\n</persona>";
 
     // Retrieve all items in the human list
-    const humanListItems = await redisClient.lRange(
+    let humanListItems = await redisClient.lRange(
       `personas_human_${userId}`,
       0,
       -1
     );
-    console.log(humanListItems);
-    const humanData = humanListItems.join("\n");
-    console.log(humanData);
+    debug("Human List Items:", humanListItems);
+
+    // Check if humanListItems is an array and not empty
+    if (!Array.isArray(humanListItems) || humanListItems.length === 0) {
+      humanListItems = await fetchPersona(userId, "human");
+      debug("Fetched Human List Items:", humanListItems);
+    }
+
+    let humanData = "";
+    // Join the list into a string only if it's a non-empty array
+    if (Array.isArray(humanListItems) && humanListItems.length > 0) {
+      humanData = humanListItems.join("\n");
+      debug("Human Data:", humanData);
+    }
+
     const formattedHumanData =
       '\n<human characters="17/2000">' + humanData + "</human>";
 
@@ -127,5 +151,5 @@ module.exports = {
   appendFilesToFile,
   readFileContentsAsync,
   readFileContentsSync,
-  appendListsToString,
+  createSystemMessage,
 };

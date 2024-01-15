@@ -58,6 +58,7 @@ async function coreMemoryReplace(userId, name, old_content, new_content) {
         name === "persona" ? "ai" : "human",
         documentId
       );
+      redisClient.publish("systemMessageUpdate", userId);
     } else if (!updated) {
       console.log("No match found for the specified old content.");
     }

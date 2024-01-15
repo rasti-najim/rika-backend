@@ -6,23 +6,25 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
 const ngrok = require("@ngrok/ngrok");
+const debug = require("debug")("app");
 const app = express();
 
 // const chat = require("./routes/chat");
 const audio = require("./routes/audio");
 const auth = require("./routes/auth");
+const embeddings = require("./routes/embeddings");
 
 const chat = require("./utils/chat");
 const handleShutdown = require("./utils/handle_shutdown");
 const fetchPersona = require("./utils/fetchPersona");
 const archivalMemoryInsert = require("./functions/archival_memory_insert");
 const fetchRecallMemory = require("./utils/fetchRecallMemory");
-const { redisClient } = require("./db");
+const { redisClient, redisSubscriber } = require("./db");
 const {
   appendFilesToFile,
   readFileContentsAsync,
   readFileContentsSync,
-  appendListsToString,
+  createSystemMessage,
 } = require("./functions/core_memory");
 const savePersona = require("./utils/savePersona");
 const humanFile = path.join(__dirname, "./personas/human.txt");
@@ -39,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // app.use("/chat", chat);
 app.use("/audio", audio);
 app.use("/auth", auth);
+app.use("/embeddings", embeddings);
 
 // Create an HTTP server and pass the Express app
 const server = http.createServer(app);
@@ -52,6 +55,31 @@ redisClient.connect().catch((err) => {
   console.error("Error connecting to Redis:", err);
 });
 
+// redisSubscriber.on("message", async (channel, message) => {
+//   console.log(`Received message from ${channel}: ${message}`);
+//   // The message is expected to be userId in this context
+//   const userId = message;
+//   systemMessagesMap[userId] = await createSystemMessage(userId);
+// });
+
+// redisSubscriber
+//   .connect()
+//   .then(() => {
+//     // Subscribe to the channel
+//     redisSubscriber.subscribe("systemMessageUpdate", (err, count) => {
+//       if (err) {
+//         console.error("Failed to subscribe: %s", err.message);
+//       } else {
+//         console.log(
+//           `Subscribed successfully! This client is currently subscribed to ${count} channels.`
+//         );
+//       }
+//     });
+//   })
+//   .catch((err) => {
+//     console.error("Error connecting to Redis subscriber:", err);
+//   });
+
 // Attach Socket.IO to the HTTP server
 const io = socketIo(server, {
   cors: {
@@ -64,17 +92,17 @@ const io = socketIo(server, {
 io.use(authenticateSocket);
 
 io.on("connection", async (socket) => {
-  console.log("human connected");
-  console.log(socket.user);
+  debug("human connected");
+  debug(socket.user);
   const userId = socket.user.id;
 
-  const humanPersona = await fetchPersona("human");
-  const aiPersona = await fetchPersona("ai");
-  console.log(humanPersona);
-  console.log(aiPersona);
-  await fetchRecallMemory(userId);
+  const humanPersona = await fetchPersona(userId, "human");
+  const aiPersona = await fetchPersona(userId, "ai");
+  debug(humanPersona);
+  debug(aiPersona);
+  // await fetchRecallMemory(userId);
 
-  var systemMessage = await appendListsToString(userId);
+  var systemMessage = await createSystemMessage(userId);
 
   // var systemMessage = "";
   // appendFilesToFile(aiFile, humanFile, chatFile, systemFile);
@@ -99,18 +127,6 @@ io.on("connection", async (socket) => {
   socket.on("disconnect", async () => {
     console.log("client disconnected");
     // await redisClient.disconnect();
-
-    try {
-      // Read the file contents
-      const humanPersona = fs.readFileSync(humanFile, "utf8");
-      const aiPersona = fs.readFileSync(aiFile, "utf8");
-      console.log(humanPersona);
-      console.log(aiPersona);
-      await savePersona(humanPersona, "human");
-      await savePersona(aiPersona, "ai");
-    } catch (err) {
-      console.error("Error reading file:", err);
-    }
   });
 });
 

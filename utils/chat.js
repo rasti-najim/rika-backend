@@ -4,6 +4,7 @@ const path = require("path");
 const axios = require("axios");
 const fs = require("fs");
 const { encoding_for_model } = require("tiktoken");
+const debug = require("debug")("app:chat");
 require("dotenv").config();
 
 const tools = require("../function_calls/functions");
@@ -21,9 +22,12 @@ const {
   readFileContentsAsync,
   readFileContentsSync,
   appendListsToString,
+  createSystemMessage,
 } = require("../functions/core_memory");
 const saveMessages = require("../utils/save_messages");
 const loadMessages = require("../utils/load_messages");
+const isPaired = require("../utils/isPaired");
+const validateMessages = "../utils/validateMessages";
 
 const humanFile = path.join(__dirname, "../personas/human.txt");
 const aiFile = path.join(__dirname, "../personas/ai.txt");
@@ -50,49 +54,64 @@ async function chat(data) {
 
   messages.push(message);
 
-  // console.log(messages);
-
-  // const prevMessages = await loadMessages(messagesFile);
-  // console.log("previous messages" + prevMessages); // Do something with the array
-  // let prevMessages = (await loadMessages(messagesFile)).map(
-  //   ({ message }) => message
-  // );
-  // // console.log("prev messages", prevMessages);
-  // prevMessages = prevMessages;
-  // messages = [messages[0], ...prevMessages, messages[1]];
-  // console.log(messages);
-
-  let prevMessages = await redisClient.lRange(`messages_${userId}`, -10, -1);
-  prevMessages = prevMessages.map((item) => JSON.parse(item)).flat();
-  prevMessages = prevMessages.map(({ message }) => message);
+  let rawPrevMessages = await redisClient.lRange(`messages_${userId}`, -10, -1);
+  console.log("Raw Previous Messages from Redis:", rawPrevMessages);
+  let prevMessages = rawPrevMessages.map((item) => JSON.parse(item));
+  // Store the original length of prevMessages
+  let originalLength = prevMessages.length;
+  debug(prevMessages);
+  // prevMessages = prevMessages.map(({ message }) => message);
+  // debug(prevMessages);
 
   // If prevMessages is empty, load messages from PostgreSQL
   if (prevMessages.length === 0) {
     prevMessages = await loadMessages(userId);
+    debug(prevMessages);
 
     if (prevMessages.length > 0) {
-      await redisClient.rPush(
-        `messages_${userId}`,
-        JSON.stringify(prevMessages)
-      );
+      for (const prevMessage of prevMessages) {
+        const messageString = JSON.stringify(prevMessage);
+        debug(messageString);
+
+        await redisClient.rPush(`messages_${userId}`, messageString);
+
+        // prevMessages = rawPrevMessages.map(({ message }) => message);
+        // debug(prevMessages);
+      }
     }
   }
 
   if (prevMessages.length > 0) {
-    console.log("previous messages", prevMessages);
-    console.log(prevMessages[0].message);
+    debug("previous messages", prevMessages);
     messages = [messages[0], ...prevMessages, messages[1]];
+    originalLength = messages.slice(1).length;
+    messages = validateMessages(messages.slice(1)); // Assume this function cleans the messages
+
+    // Check if messages were modified
+    if (messages.length !== originalLength) {
+      // Update Redis list only if modifications were made
+
+      // Delete the old list in Redis
+      await redisClient.del(`messages_${userId}`);
+
+      // Repopulate Redis with the cleaned messages
+      for (const msg of messages) {
+        // Use 'messages' here instead of 'prevMessages'
+        const messageString = JSON.stringify(msg);
+        await redisClient.rPush(`messages_${userId}`, messageString);
+      }
+    }
   } else {
     messages = [messages[0], messages[1]];
   }
 
-  console.log(messages);
+  debug(messages);
 
   const completion = await openai.chat.completions.create({
     messages: messages,
     tools: tools,
     tool_choice: "auto",
-    model: "gpt-4",
+    model: "gpt-4-1106-preview",
   });
 
   console.log(completion.choices[0]);
@@ -101,28 +120,56 @@ async function chat(data) {
 
   let date = new Date();
   let dateString = date.toISOString().replace("T", " ").substring(0, 19);
+
+  // Check the number of messages in the Redis list
+  const listLength = await redisClient.lLen(`messages_${userId}`);
+
+  // If the list has 10 or more messages, remove the oldest one
+  if (listLength >= 10) {
+    let oldestMessage = JSON.parse(
+      await redisClient.lIndex(`messages_${userId}`, 0)
+    );
+
+    // Check if removing the oldest message breaks a pair
+    if (oldestMessage.role === "assistant") {
+      let secondOldestMessage = JSON.parse(
+        await redisClient.lIndex(`messages_${userId}`, 1)
+      );
+      if (
+        secondOldestMessage.role === "tool" &&
+        oldestMessage.tool_calls[0].id === secondOldestMessage.tool_call_id
+      ) {
+        // Remove the pair
+        await redisClient.lPop(`messages_${userId}`);
+      }
+    }
+
+    // Remove the oldest message
+    await redisClient.lPop(`messages_${userId}`);
+  }
+
   const newMessages = [
     { message: message, time: time },
     { message: completion.choices[0].message, time: dateString },
   ];
 
-  const messagesString = JSON.stringify(newMessages);
-  console.log(messagesString);
+  for (const newMessage of newMessages) {
+    const messageString = JSON.stringify(newMessage.message);
+    console.log(messageString);
 
-  await redisClient.rPush(`messages_${userId}`, messagesString);
-  // await redisClient.lTrim(`messages_${userId}`, -10, -1);
-  await saveMessages(userId);
+    await redisClient.rPush(`messages_${userId}`, messageString);
+  }
+  // Optionally, if you want to ensure that the list never exceeds 10 messages,
+  // you can use LTRIM here as a safety measure
+  await redisClient.lTrim(`messages_${userId}`, -10, -1);
+
+  await saveMessages(userId, newMessages);
 
   // await saveMessages(newMessages, messagesFile);
 
   const useTools = completion.choices[0].finish_reason === "tool_calls";
   if (useTools) {
-    const toolMessage = await handleToolCalls(
-      userId,
-      systemMessage,
-      completion,
-      messages
-    );
+    const toolMessage = await handleToolCalls(userId, completion);
     //   res.send(toolMessage);
     return toolMessage;
   }
@@ -130,7 +177,7 @@ async function chat(data) {
   return completion;
 }
 
-async function handleToolCalls(userId, systemMessage, completion, messages) {
+async function handleToolCalls(userId, completion) {
   console.log("calling handleToolCalls");
   const arguments = JSON.parse(
     completion.choices[0].message.tool_calls[0].function.arguments
@@ -155,7 +202,6 @@ async function handleToolCalls(userId, systemMessage, completion, messages) {
     console.log("calling core_memory_append");
     toolMessage.content = memoryStatus;
     console.log(memoryStatus);
-    systemMessage = await appendListsToString(userId);
   } else if (
     completion.choices[0].message.tool_calls[0].function.name ===
     "core_memory_replace"
@@ -165,7 +211,6 @@ async function handleToolCalls(userId, systemMessage, completion, messages) {
       arguments.old_content,
       arguments.new_content
     );
-    systemMessage = await appendListsToString(userId);
   } else if (
     completion.choices[0].message.tool_calls[0].function.name ===
     "conversation_search"
@@ -194,18 +239,13 @@ async function handleToolCalls(userId, systemMessage, completion, messages) {
     "archival_memory_insert"
   ) {
     console.log("calling archival_memory_insert", arguments.content);
-    await archivalMemoryInsert(arguments.content);
+    await archivalMemoryInsert(userId, arguments.content);
   } else if (
     completion.choices[0].message.tool_calls[0].function.name ===
     "archival_memory_search"
   ) {
     console.log("calling archival_memory_search", arguments.query);
-    await archivalMemorySearch(arguments.query);
-  } else if (
-    completion.choices[0].message.tool_calls[0].function.name ===
-    "archival_memory_delete"
-  ) {
-    await client.deleteCollection({ name: "archival_memory" });
+    await archivalMemorySearch(userId, arguments.query);
   }
 
   return toolMessage;

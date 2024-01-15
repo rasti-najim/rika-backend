@@ -167,17 +167,6 @@ const tools = [
       },
     },
   },
-  {
-    type: "function",
-    function: {
-      name: "archival_memory_delete",
-      description: "Delete your archival memory",
-      parameters: {
-        type: "object",
-        properties: {},
-      },
-    },
-  },
 ];
 
 module.exports = tools;

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const debug = require("debug")("app:fetchPersona");
 const archivalMemorySearch = require("../functions/archival_memory_search");
 const { client } = require("../db");
 
@@ -20,17 +21,17 @@ async function fetchPersona(userId, persona) {
     return;
   }
 
-  console.log(results);
-  console.log(results.metadatas[0]);
+  debug(results);
+  debug(results.metadatas);
 
-  const personaInfo = results.documents[0];
+  const personaInfo = results.documents;
 
   // const personaInfo = await archivalMemorySearch(
   //   `Key details about the ${persona} persona`,
   //   openai
   // );
 
-  console.log(personaInfo);
+  debug(personaInfo);
   return personaInfo;
 
   // if (personaInfo === "No results found.") {

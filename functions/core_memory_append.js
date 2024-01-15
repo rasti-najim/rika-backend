@@ -32,6 +32,7 @@ async function coreMemoryAppend(userId, name, content) {
     // Append new content to the list
     await redisClient.rPush(keyName, content);
     await savePersona(userId, content, name === "persona" ? "ai" : "human");
+    redisClient.publish("systemMessageUpdate", userId);
   } catch (err) {
     console.error("Error updating memory:", err);
     return "Error updating memory";

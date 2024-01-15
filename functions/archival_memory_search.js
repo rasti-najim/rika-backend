@@ -1,5 +1,5 @@
 const { client } = require("../db");
-const { openai } = require("../utils/openaiClient");
+const openai = require("../utils/openaiClient");
 
 /**
  * Searches archival memory and returns the results along with the total number of results.
@@ -9,7 +9,7 @@ const { openai } = require("../utils/openaiClient");
  * @param {number|null} [start=null] - The offset to start returning results from. If null, starts from 0.
  * @returns {[Array, number]} - A tuple where the first element is a list of results and the second is the total number of results.
  */
-async function search(queryString, count = null, start = null) {
+async function search(userId, queryString, count = null, start = null) {
   const collection = await client.getOrCreateCollection({
     name: "archival_memory",
     // embeddingFunction: embedder,
@@ -27,6 +27,7 @@ async function search(queryString, count = null, start = null) {
 
   const results = await collection.query({
     queryEmbeddings: [embeddings],
+    where: { userId: userId },
     include: ["documents", "metadatas"],
     // queryTexts: ["AI"],
   });
@@ -54,7 +55,7 @@ async function search(queryString, count = null, start = null) {
  * @param {number} [page=0] - The page number for paging through results, defaults to 0 for first page.
  * @returns {string} - The result of the query as a string.
  */
-async function archivalMemorySearch(query, page = 0) {
+async function archivalMemorySearch(userId, query, page = 0) {
   // Implementation of the semantic search goes here.
   // This would typically involve calling an API or searching a database.
 
@@ -68,7 +69,12 @@ async function archivalMemorySearch(query, page = 0) {
 
   // Mock function call to search in archival memory.
   // In actual implementation, it would involve calling the search function of the persistence manager.
-  const [results, total, metadatas] = await search(query, count, page * count);
+  const [results, total, metadatas] = await search(
+    userId,
+    query,
+    count,
+    page * count
+  );
 
   const numPages = Math.ceil(total / count) - 1; // 0 index
   let resultsStr = "";

@@ -3,35 +3,55 @@ const { redisClient } = require("../db");
 const { pool } = require("../db");
 
 // Function to check Redis list length and move messages to PostgreSQL
-async function saveMessages(userId) {
-  const listLength = await redisClient.lLen(`messages_${userId}`);
-
-  if (listLength >= 20) {
-    const messages = await redisClient.lRange(`messages_${userId}`, 0, 9);
-    await redisClient.del(`messages_${userId}`); // Clear the list in Redis
-
-    for (const messageString of messages) {
-      const messageObj = JSON.parse(messageString);
-      if (
-        messageObj.message &&
-        messageObj.message.role &&
-        messageObj.message.content &&
-        messageObj.message.role !== "tool" &&
-        !messageObj.message.tool_calls &&
-        messageObj.time
-      ) {
-        const { role, content } = messageObj.message;
-        const insertQuery =
-          "INSERT INTO messages (user_id, role, content, time) VALUES ($1, $2, $3, $4)";
-        const values = [userId, role, content, messageObj.time];
-        await pool.query(insertQuery, values);
-      }
-    }
-
-    for (let i = 0; i < 10; i++) {
-      await redisClient.lPop(`messages_${userId}`);
+async function saveMessages(userId, messages) {
+  for (const messageObj of messages) {
+    if (
+      messageObj.message &&
+      messageObj.message.role &&
+      messageObj.message.content &&
+      messageObj.message.role !== "tool" &&
+      !messageObj.message.tool_calls &&
+      messageObj.time
+    ) {
+      const { role, content } = messageObj.message;
+      const insertQuery =
+        "INSERT INTO messages (user_id, role, content, time) VALUES ($1, $2, $3, $4)";
+      const values = [userId, role, content, messageObj.time];
+      await pool.query(insertQuery, values);
     }
   }
+
+  // const listLength = await redisClient.lLen(`messages_${userId}`);
+
+  // // Save to PostgreSQL when list length reaches 20 or more
+  // if (listLength >= 20) {
+  //   // Get the oldest 10 messages
+  //   const messages = await redisClient.lRange(`messages_${userId}`, 0, 9);
+
+  //   // Process each message
+  //   for (const messageString of messages) {
+  //     const messageObj = JSON.parse(messageString);
+  //     if (
+  //       messageObj.message &&
+  //       messageObj.message.role &&
+  //       messageObj.message.content &&
+  //       messageObj.message.role !== "tool" &&
+  //       !messageObj.message.tool_calls &&
+  //       messageObj.time
+  //     ) {
+  //       const { role, content } = messageObj.message;
+  //       const insertQuery =
+  //         "INSERT INTO messages (user_id, role, content, time) VALUES ($1, $2, $3, $4)";
+  //       const values = [userId, role, content, messageObj.time];
+  //       await pool.query(insertQuery, values);
+  //     }
+  //   }
+
+  //   // Remove the processed messages from the Redis list
+  //   for (let i = 0; i < 10; i++) {
+  //     await redisClient.lPop(`messages_${userId}`);
+  //   }
+  // }
 }
 
 // async function saveMessages(objects, filePath) {
