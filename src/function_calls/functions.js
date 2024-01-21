@@ -17,10 +17,11 @@ const tools = [
             description:
               "Content to write to the memory. All unicode (including emojis) are supported.",
           },
-          //   request_heartbeat: {
-          //     type: "boolean",
-          //     description: FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
-          //   },
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
+          // },
         },
         required: ["name", "content"],
       },
@@ -49,10 +50,11 @@ const tools = [
             description:
               "Content to write to the memory. All unicode (including emojis) are supported.",
           },
-          //   request_heartbeat: {
-          //     type: "boolean",
-          //     description: FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
-          //   },
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
+          // },
         },
         required: ["name", "old_content", "new_content"],
       },
@@ -76,9 +78,10 @@ const tools = [
             description:
               "Allows you to page through results. Only use on a follow-up query. Defaults to 0 (first page).",
           },
-          // "request_heartbeat": {
-          //     "type": "boolean",
-          //     "description": FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
           // },
         },
         required: ["query"],
@@ -108,9 +111,10 @@ const tools = [
             description:
               "Allows you to page through results. Only use on a follow-up query. Defaults to 0 (first page).",
           },
-          // "request_heartbeat": {
-          //     "type": "boolean",
-          //     "description": FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
           // },
         },
         required: ["start_date", "end_date"],
@@ -131,9 +135,10 @@ const tools = [
             description:
               "Content to write to the memory. All unicode (including emojis) are supported.",
           },
-          // "request_heartbeat": {
-          //     "type": "boolean",
-          //     "description": FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
           // },
         },
         required: ["content"],
@@ -158,9 +163,10 @@ const tools = [
             description:
               "Allows you to page through results. Only use on a follow-up query. Defaults to 0 (first page).",
           },
-          // "request_heartbeat": {
-          //     "type": "boolean",
-          //     "description": FUNCTION_PARAM_DESCRIPTION_REQ_HEARTBEAT,
+          // request_heartbeat: {
+          //   type: "boolean",
+          //   description:
+          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
           // },
         },
         required: ["query"],

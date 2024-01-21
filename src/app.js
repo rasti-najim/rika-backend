@@ -13,6 +13,7 @@ const app = express();
 const audio = require("./routes/audio");
 const auth = require("./routes/auth");
 const embeddings = require("./routes/embeddings");
+const messages = require("./routes/messages");
 
 const chat = require("./utils/chat");
 const handleShutdown = require("./utils/handle_shutdown");
@@ -26,11 +27,6 @@ const {
   readFileContentsSync,
   createSystemMessage,
 } = require("./functions/core_memory");
-const savePersona = require("./utils/savePersona");
-const humanFile = path.join(__dirname, "./personas/human.txt");
-const aiFile = path.join(__dirname, "./personas/ai.txt");
-const chatFile = path.join(__dirname, "./system/chat.txt");
-const systemFile = path.join(__dirname, "./system/system.txt");
 const authenticateSocket = require("./middleware/authenticateSocket");
 
 const port = 8080;
@@ -42,6 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/audio", audio);
 app.use("/auth", auth);
 app.use("/embeddings", embeddings);
+app.use("/messages", messages);
 
 // Create an HTTP server and pass the Express app
 const server = http.createServer(app);
@@ -102,7 +99,28 @@ io.on("connection", async (socket) => {
   debug(aiPersona);
   // await fetchRecallMemory(userId);
 
-  var systemMessage = await createSystemMessage(userId);
+  await createSystemMessage(userId);
+
+  // Define the heartbeat interval in milliseconds (e.g., 5000ms = 5 seconds)
+  // const heartbeatInterval = 5000;
+
+  // Function that performs the action on each heartbeat
+  // function onHeartbeat() {
+  //   console.log("Heartbeat action performed");
+
+  //   // Your custom logic here
+  //   // For example, check server status, perform a task, etc.
+  // }
+
+  // Set up the heartbeat interval
+  // setInterval(() => {
+  //   try {
+  //     onHeartbeat();
+  //   } catch (error) {
+  //     console.error("Heartbeat action failed", error);
+  //     // Optional: Implement error handling or recovery logic
+  //   }
+  // }, heartbeatInterval);
 
   // var systemMessage = "";
   // appendFilesToFile(aiFile, humanFile, chatFile, systemFile);
@@ -111,10 +129,26 @@ io.on("connection", async (socket) => {
   // // console.log(fileContents);
   // systemMessage = fileContents;
 
+  // Handle heartbeat messages
+  // socket.on("heartbeat", async () => {
+  //   console.log("Heartbeat received from client");
+  //   // Perform any action you need on each heartbeat
+  //   // For example, log something, check server status, etc.
+  //   const message = {
+  //     role: "user",
+  //     content:
+  //       "Warning: the conversation history will soon reach its maximum length and be trimmed. Make sure to save any important information from the conversation to your memory before it is removed.",
+  //   };
+  //   let date = new Date();
+  //   let time = date.toISOString().replace("T", " ").substring(0, 19);
+  //   const completion = await chat({ userId, systemMessage, message, time });
+  //   debug("Memory updated using heatbeat", completion);
+  // });
+
   socket.on("send_message", async (data) => {
     const { message, time } = data;
     try {
-      const completion = await chat({ userId, systemMessage, message, time });
+      const completion = await chat({ userId, message, time });
 
       // After processing, emit a response back to the client
       socket.emit("receive_message", completion);

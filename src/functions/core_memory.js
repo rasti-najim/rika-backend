@@ -6,6 +6,8 @@ const { CHAT } = require("../constants/constants");
 const fetchPersona = require("../utils/fetchPersona");
 
 async function createSystemMessage(userId) {
+  const ttl = 3600; // 1 hour TTL
+
   try {
     // Retrieve all items in the AI list
     let aiListItems = await redisClient.lRange(`personas_ai_${userId}`, 0, -1);
@@ -15,6 +17,11 @@ async function createSystemMessage(userId) {
     if (!Array.isArray(aiListItems) || aiListItems.length === 0) {
       aiListItems = await fetchPersona(userId, "ai");
       debug("Fetched AI List Items:", aiListItems);
+
+      // Store the data in Redis and set a TTL
+      await redisClient.del(`personas_ai_${userId}`); // Delete existing list
+      await redisClient.rPush(`personas_ai_${userId}`, ...aiListItems); // Push new items
+      await redisClient.expire(`personas_ai_${userId}`, ttl); // Set TTL
     }
 
     let aiData = "";
@@ -39,6 +46,11 @@ async function createSystemMessage(userId) {
     if (!Array.isArray(humanListItems) || humanListItems.length === 0) {
       humanListItems = await fetchPersona(userId, "human");
       debug("Fetched Human List Items:", humanListItems);
+
+      // Store the data in Redis and set a TTL
+      await redisClient.del(`personas_human_${userId}`); // Delete existing list
+      await redisClient.rPush(`personas_human_${userId}`, ...humanListItems); // Push new items
+      await redisClient.expire(`personas_human_${userId}`, ttl); // Set TTL
     }
 
     let humanData = "";
@@ -59,11 +71,37 @@ async function createSystemMessage(userId) {
     const systemMessage =
       CHAT + "\n" + header + formattedAiData + formattedHumanData;
 
-    return systemMessage;
+    // Fetch the updated system message from Redis
+    await redisClient.set(`system_message_${userId}`, systemMessage, {
+      EX: ttl,
+    });
   } catch (err) {
     console.error("Error occurred while appending data:", err);
     return "Error appending data";
   }
+}
+
+async function updateSystemMessage(userId) {
+  let aiData = await redisClient
+    .lRange(`personas_ai_${userId}`, 0, -1)
+    .then((items) => items.join("\n"));
+  let humanData = await redisClient
+    .lRange(`personas_human_${userId}`, 0, -1)
+    .then((items) => items.join("\n"));
+
+  const formattedAiData =
+    '<persona characters="317/2000">' + aiData + "\n</persona>";
+  const formattedHumanData =
+    '\n<human characters="17/2000">' + humanData + "</human>";
+  const header =
+    "\nCore memory shown below (limited in size, additional information stored in archival / recall memory):\n";
+
+  const systemMessage =
+    CHAT + "\n" + header + formattedAiData + formattedHumanData;
+
+  // Update the system message in Redis
+  const ttl = 3600; // For example, 1 hour
+  await redisClient.set(`system_message_${userId}`, systemMessage, { EX: ttl });
 }
 
 function appendFilesToFile(file1, file2, targetFile, newFile) {
@@ -152,4 +190,5 @@ module.exports = {
   readFileContentsAsync,
   readFileContentsSync,
   createSystemMessage,
+  updateSystemMessage,
 };

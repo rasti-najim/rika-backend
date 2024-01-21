@@ -38,8 +38,6 @@ function validateMessages(messages) {
       i++; // Move to the next message
     }
   }
-
-  return messages;
 }
 
 module.exports = validateMessages;

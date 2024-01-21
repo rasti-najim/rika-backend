@@ -3,6 +3,7 @@ const path = require("path");
 const { encoding_for_model } = require("tiktoken");
 const { redisClient } = require("../db");
 const savePersona = require("../utils/savePersona");
+const { createSystemMessage } = require("./core_memory");
 
 /**
  * Append to the contents of core memory.
@@ -15,9 +16,23 @@ const savePersona = require("../utils/savePersona");
 async function coreMemoryAppend(userId, name, content) {
   const keyName =
     name === "persona" ? `personas_ai_${userId}` : `personas_human_${userId}`;
+  const ttl = 3600; // For example, 1 hour TTL
 
   try {
-    const listItems = await redisClient.lRange(keyName, 0, -1);
+    const listExists = await redisClient.exists(keyName);
+    let listItems = [];
+
+    if (!listExists) {
+      listItems = await fetchPersona(
+        userId,
+        name === "persona" ? "ai" : "human"
+      );
+      await redisClient.rPush(keyName, ...listItems);
+      await redisClient.expire(keyName, ttl); // Set TTL
+    } else {
+      listItems = await redisClient.lRange(keyName, 0, -1);
+    }
+
     const existingData = listItems.join("\n");
     const encoding = encoding_for_model("gpt-4");
     const numPersonaTokens = encoding.encode(existingData).length;
@@ -29,10 +44,8 @@ async function coreMemoryAppend(userId, name, content) {
       return "Warning: the conversation history will soon reach its maximum length and be trimmed. Make sure to save any important information from the conversation to your memory before it is removed.";
     }
 
-    // Append new content to the list
-    await redisClient.rPush(keyName, content);
     await savePersona(userId, content, name === "persona" ? "ai" : "human");
-    redisClient.publish("systemMessageUpdate", userId);
+    await createSystemMessage(userId);
   } catch (err) {
     console.error("Error updating memory:", err);
     return "Error updating memory";

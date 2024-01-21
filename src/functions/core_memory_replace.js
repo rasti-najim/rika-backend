@@ -3,6 +3,8 @@ const path = require("path");
 const { encoding_for_model } = require("tiktoken");
 const { client, redisClient } = require("../db");
 const savePersona = require("../utils/savePersona");
+const { createSystemMessage, updatesystemMessage } = require("./core_memory");
+const fetchPersona = require("../utils/fetchPersona");
 
 /**
  * Replace the contents of core memory. Searches for a string in the file and replaces it if there's a match.
@@ -17,10 +19,25 @@ const savePersona = require("../utils/savePersona");
 async function coreMemoryReplace(userId, name, old_content, new_content) {
   const keyName =
     name === "persona" ? `personas_ai_${userId}` : `personas_human_${userId}`;
+  const ttl = 3600; // For example, 1 hour TTL
 
   try {
-    // Retrieve all items in the list
-    const listItems = await redisClient.lRange(keyName, 0, -1);
+    // Check if the list exists in Redis
+    const listExists = await redisClient.exists(keyName);
+    let listItems = [];
+
+    if (!listExists) {
+      // If the list doesn't exist, fetch from the database and repopulate Redis
+      listItems = await fetchPersona(
+        userId,
+        name === "persona" ? "ai" : "human"
+      ); // Replace with your database fetching logic
+      await redisClient.rPush(keyName, ...listItems);
+      await redisClient.expire(keyName, ttl); // Set TTL
+    } else {
+      // If the list exists, retrieve all items
+      listItems = await redisClient.lRange(keyName, 0, -1);
+    }
 
     const encoding = encoding_for_model("gpt-4");
     let updated = false;
@@ -39,9 +56,9 @@ async function coreMemoryReplace(userId, name, old_content, new_content) {
     if (updated && newContentTokensCount <= 2000) {
       // Replace the list with the updated content
       await redisClient.del(keyName); // Delete the old list
-      for (const item of listItems) {
-        await client.rPush(keyName, item); // Push updated items
-      }
+      await redisClient.rPush(keyName, ...listItems); // Push updated items
+      await redisClient.expire(keyName, ttl); // Reset TTL
+
       const collection = await client.getCollection({
         name: `${name === "persona" ? "ai" : "human"}_personas`,
       });
@@ -58,7 +75,7 @@ async function coreMemoryReplace(userId, name, old_content, new_content) {
         name === "persona" ? "ai" : "human",
         documentId
       );
-      redisClient.publish("systemMessageUpdate", userId);
+      await createSystemMessage(userId);
     } else if (!updated) {
       console.log("No match found for the specified old content.");
     }
