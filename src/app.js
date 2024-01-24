@@ -43,10 +43,10 @@ app.use("/messages", messages);
 // Create an HTTP server and pass the Express app
 const server = http.createServer(app);
 
-ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
-  console.log(`Ingress established at: ${listener.url()}`);
-  app.set("ngrokUrl", listener.url());
-});
+// ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
+//   console.log(`Ingress established at: ${listener.url()}`);
+//   app.set("ngrokUrl", listener.url());
+// });
 
 redisClient.connect().catch((err) => {
   console.error("Error connecting to Redis:", err);
