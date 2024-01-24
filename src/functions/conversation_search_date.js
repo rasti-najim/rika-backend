@@ -1,6 +1,6 @@
 const path = require("path");
 const loadMessages = require("../utils/load_messages");
-const messagesFile = path.join(__dirname, "../utils/messages.json");
+const { pool } = require("../db");
 
 // Validate the given date string in the format 'YYYY-MM-DD'
 function _validateDateFormat(dateStr) {
@@ -20,11 +20,18 @@ function _extractDateFromTimestamp(timestamp) {
 }
 
 // Search for messages within a date range
-async function dateSearch(startDate, endDate, count = null, start = 0) {
-  const _messageLogs = await loadMessages(messagesFile);
-  const messagePool = _messageLogs.filter(
-    (d) => d.message.role !== "system" && d.message.role !== "tool"
-  );
+async function dateSearch(usrId, startDate, endDate, count = null, start = 0) {
+  // const _messageLogs = await loadMessages(messagesFile);
+  // const messagePool = _messageLogs.filter(
+  //   (d) => d.message.role !== "system" && d.message.role !== "tool"
+  // );
+
+  const result = await pool.query("SELECT * FROM messages WHERE user_id = $1", [
+    userId,
+  ]);
+
+  const _messageLogs = result.rows;
+  debug(_messageLogs);
 
   // Validate the start_date and end_date format
   if (!_validateDateFormat(startDate) || !_validateDateFormat(endDate)) {
@@ -35,8 +42,8 @@ async function dateSearch(startDate, endDate, count = null, start = 0) {
   const endDateDt = new Date(endDate);
 
   // Match items inside messageLogs
-  const matches = messagePool.filter((d) => {
-    const date = new Date(_extractDateFromTimestamp(d.timestamp));
+  const matches = _messageLogs.filter((d) => {
+    const date = new Date(_extractDateFromTimestamp(d.time));
     return date >= startDateDt && date <= endDateDt;
   });
 
@@ -48,15 +55,17 @@ async function dateSearch(startDate, endDate, count = null, start = 0) {
 /**
  * Search conversation history using a date range.
  *
+ * @param {string} userId - The user ID.
  * @param {string} startDate - The start of the date range in 'YYYY-MM-DD' format.
  * @param {string} endDate - The end of the date range in 'YYYY-MM-DD' format.
  * @param {number} [page=0] - The page number for paging through results. Defaults to 0.
  * @returns {string} - Query result string.
  */
-async function conversationSearchDate(startDate, endDate, page = 0) {
+async function conversationSearchDate(userId, startDate, endDate, page = 0) {
   const RETRIEVAL_QUERY_DEFAULT_PAGE_SIZE = 5;
   const count = RETRIEVAL_QUERY_DEFAULT_PAGE_SIZE;
   const [results, total] = await dateSearch(
+    userId,
     startDate,
     endDate,
     count,
@@ -70,7 +79,7 @@ async function conversationSearchDate(startDate, endDate, page = 0) {
   } else {
     const resultsPref = `Showing ${results.length} of ${total} results (page ${page}/${numPages}):`;
     const resultsFormatted = results.map(
-      (d) => `timestamp: ${d.time}, ${d.message.role} - ${d.message.content}`
+      (d) => `timestamp: ${d.time}, ${d.role} - ${d.content}`
     );
     resultsStr = `${resultsPref} ${JSON.stringify(resultsFormatted)}`;
   }

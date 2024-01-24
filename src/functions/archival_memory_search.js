@@ -51,6 +51,7 @@ async function search(userId, queryString, count = null, start = null) {
 /**
  * Performs a semantic search in archival memory.
  *
+ * @param {string} userId - The user ID of the user who is performing the search.
  * @param {string} query - The string to search for.
  * @param {number} [page=0] - The page number for paging through results, defaults to 0 for first page.
  * @returns {string} - The result of the query as a string.

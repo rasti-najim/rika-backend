@@ -18,7 +18,7 @@ async function fetchPersona(userId, persona) {
   });
 
   if (results.documents.length == 0) {
-    return;
+    return [];
   }
 
   debug(results);

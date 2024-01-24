@@ -35,6 +35,7 @@ async function handleToolCalls(userId, completion) {
     "core_memory_replace"
   ) {
     await coreMemoryReplace(
+      userId,
       arguments.name,
       arguments.old_content,
       arguments.new_content
@@ -44,7 +45,7 @@ async function handleToolCalls(userId, completion) {
     "conversation_search"
   ) {
     console.log("calling conversation_search", arguments.query);
-    const searchResult = await conversationSearch(arguments.query);
+    const searchResult = await conversationSearch(userId, arguments.query);
     console.log(searchResult);
     toolMessage.content = searchResult;
   } else if (

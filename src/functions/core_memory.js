@@ -18,10 +18,12 @@ async function createSystemMessage(userId) {
       aiListItems = await fetchPersona(userId, "ai");
       debug("Fetched AI List Items:", aiListItems);
 
-      // Store the data in Redis and set a TTL
-      await redisClient.del(`personas_ai_${userId}`); // Delete existing list
-      await redisClient.rPush(`personas_ai_${userId}`, ...aiListItems); // Push new items
-      await redisClient.expire(`personas_ai_${userId}`, ttl); // Set TTL
+      if (aiListItems.length > 0) {
+        // Store the data in Redis and set a TTL
+        await redisClient.del(`personas_ai_${userId}`); // Delete existing list
+        await redisClient.rPush(`personas_ai_${userId}`, ...aiListItems); // Push new items
+        await redisClient.expire(`personas_ai_${userId}`, ttl); // Set TTL
+      }
     }
 
     let aiData = "";
@@ -47,10 +49,12 @@ async function createSystemMessage(userId) {
       humanListItems = await fetchPersona(userId, "human");
       debug("Fetched Human List Items:", humanListItems);
 
-      // Store the data in Redis and set a TTL
-      await redisClient.del(`personas_human_${userId}`); // Delete existing list
-      await redisClient.rPush(`personas_human_${userId}`, ...humanListItems); // Push new items
-      await redisClient.expire(`personas_human_${userId}`, ttl); // Set TTL
+      if (humanListItems.length > 0) {
+        // Store the data in Redis and set a TTL
+        await redisClient.del(`personas_human_${userId}`); // Delete existing list
+        await redisClient.rPush(`personas_human_${userId}`, ...humanListItems); // Push new items
+        await redisClient.expire(`personas_human_${userId}`, ttl); // Set TTL
+      }
     }
 
     let humanData = "";

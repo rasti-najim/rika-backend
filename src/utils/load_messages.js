@@ -4,7 +4,7 @@ const { pool } = require("../db");
 async function loadMessages(userId) {
   try {
     const result = await pool.query(
-      "SELECT * FROM messages WHERE user_id = $1 ORDER BY time DESC LIMIT 10",
+      "SELECT * FROM messages WHERE user_id = $1 ORDER BY time LIMIT 10",
       [userId]
     );
     console.log("messages from the database", result.rows);

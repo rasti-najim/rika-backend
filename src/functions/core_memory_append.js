@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { encoding_for_model } = require("tiktoken");
 const { redisClient } = require("../db");
+const fetchPersona = require("../utils/fetchPersona");
 const savePersona = require("../utils/savePersona");
 const { createSystemMessage } = require("./core_memory");
 

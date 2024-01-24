@@ -7,10 +7,11 @@ require("dotenv").config();
 /**
  * Adds content to archival memory. This function is designed to handle any Unicode content, including emojis.
  *
+ * @param {string} userId - The user ID of the user who is adding content to memory.
  * @param {string} content - The content to be written to the memory.
  * @return {null} - This function does not produce a response.
  */
-async function archivalMemoryInsert(userId, content, persona = null) {
+async function archivalMemoryInsert(userId, content) {
   console.log("archivalMemoryInsert called.");
 
   // const embedder = new OpenAIEmbeddingFunction({
