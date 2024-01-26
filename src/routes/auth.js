@@ -5,7 +5,11 @@ const Joi = require("joi");
 const _ = require("lodash");
 const owasp = require("owasp-password-strength-test");
 const zxcvbn = require("zxcvbn");
-require("dotenv").config();
+if (process.env.NODE_ENV === "production") {
+  require("dotenv").config({ path: "/etc/app.env" });
+} else {
+  require("dotenv").config();
+}
 
 const { pool, redisClient } = require("../db");
 

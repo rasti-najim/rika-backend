@@ -1,7 +1,11 @@
 const express = require("express");
 const { client } = require("../db");
 const savePersona = require("../utils/savePersona");
-require("dotenv").config();
+if (process.env.NODE_ENV === "production") {
+  require("dotenv").config({ path: "/etc/app.env" });
+} else {
+  require("dotenv").config();
+}
 
 const router = express.Router();
 

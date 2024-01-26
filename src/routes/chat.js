@@ -4,7 +4,11 @@ const path = require("path");
 const axios = require("axios");
 const fs = require("fs");
 const { encoding_for_model } = require("tiktoken");
-require("dotenv").config();
+if (process.env.NODE_ENV === "production") {
+  require("dotenv").config({ path: "/etc/app.env" });
+} else {
+  require("dotenv").config();
+}
 
 const tools = require("../function_calls/functions");
 const coreMemoryAppend = require("../functions/core_memory_append");
