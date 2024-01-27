@@ -9,13 +9,22 @@ if (process.env.NODE_ENV === "production") {
 
 const client = new ChromaClient();
 
-const redisClient = createClient();
-const redisSubscriber = createClient(); // For subscribing to channels
+const redisClient = createClient(
+  process.env.NODE_ENV === "production"
+    ? {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+        // if your ElastiCache Redis setup uses a password
+        // password: 'your-password'
+      }
+    : {}
+);
+// const redisSubscriber = createClient(); // For subscribing to channels
 
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
-redisSubscriber.on("error", (err) =>
-  console.log("Redis Subscriber Error", err)
-);
+// redisSubscriber.on("error", (err) =>
+//   console.log("Redis Subscriber Error", err)
+// );
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -25,4 +34,4 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-module.exports = { client, pool, redisClient, redisSubscriber };
+module.exports = { client, pool, redisClient };
