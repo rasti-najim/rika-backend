@@ -29,7 +29,7 @@ const {
 } = require("./functions/core_memory");
 const authenticateSocket = require("./middleware/authenticateSocket");
 
-const port = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
@@ -172,8 +172,8 @@ process.on("SIGINT", () => {
   });
 });
 
-server.listen(port, async () => {
-  console.log(`Server running on http://localhost:${port}`);
+server.listen(PORT, async () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 // const server = app.listen(port, () => {
