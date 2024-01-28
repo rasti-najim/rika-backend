@@ -12,10 +12,13 @@ const client = new ChromaClient();
 const redisClient = createClient(
   process.env.NODE_ENV === "production"
     ? {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
-        // if your ElastiCache Redis setup uses a password
-        // password: 'your-password'
+        socket: {
+          host: process.env.REDIS_HOST,
+          port: process.env.REDIS_PORT,
+          // if your ElastiCache Redis setup uses a password
+          // password: 'your-password'
+          tls: true,
+        },
       }
     : {}
 );
