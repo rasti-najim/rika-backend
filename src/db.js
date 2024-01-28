@@ -35,8 +35,9 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: {
-    rejectUnauthorized: false, // For testing purposes. For production, use proper SSL configuration.
+  ssl: process.env.NODE_ENV === "production" && {
+    ca: fs.readFileSync("/etc/ssl/certs/global-bundle.pem").toString(),
+    // rejectUnauthorized: false, // For testing purposes. For production, use proper SSL configuration.
   },
 });
 
