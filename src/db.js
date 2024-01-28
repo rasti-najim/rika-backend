@@ -1,6 +1,7 @@
 const { ChromaClient } = require("chromadb");
 const { Pool } = require("pg");
 const { createClient } = require("redis");
+const fs = require("fs");
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: "/etc/app.env" });
 } else {
