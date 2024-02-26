@@ -23,8 +23,8 @@ const {
   readFileContentsAsync,
   readFileContentsSync,
 } = require("../functions/core_memory");
-const saveMessages = require("../utils/save_messages");
-const loadMessages = require("../utils/load_messages");
+const saveMessages = require("../utils/saveMessages");
+const loadMessages = require("../utils/loadMessages");
 
 const humanFile = path.join(__dirname, "../personas/human.txt");
 const aiFile = path.join(__dirname, "../personas/ai.txt");
@@ -190,7 +190,7 @@ router.post("/", async (req, res) => {
 
 async function handleToolCalls(completion, messages) {
   console.log("calling handleToolCalls");
-  const arguments = JSON.parse(
+  const toolCallArguments = JSON.parse(
     completion.choices[0].message.tool_calls[0].function.arguments
   );
   const tool_call_id = completion.choices[0].message.tool_calls[0].id;
