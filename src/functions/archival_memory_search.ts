@@ -1,5 +1,6 @@
-const { client } = require("../db");
-const openai = require("../utils/openaiClient");
+import { IncludeEnum } from "chromadb";
+import { client, pc } from "../db";
+import openai from "../utils/openaiClient";
 
 type Metadata = {
   userId: string;
@@ -38,7 +39,7 @@ async function search(
   const results = await collection.query({
     queryEmbeddings: [embeddings],
     where: { userId: userId },
-    include: ["documents", "metadatas"],
+    include: [IncludeEnum.Documents, IncludeEnum.Metadatas],
     // queryTexts: ["AI"],
   });
 
@@ -55,6 +56,7 @@ async function search(
     ? results.documents[0].slice(start || 0, (start || 0) + count)
     : results.documents[0];
 
+  // @ts-ignore
   return Promise.resolve([queryResults, totalResults, metadatas]);
 }
 

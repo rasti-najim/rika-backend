@@ -1,12 +1,17 @@
-const { ChromaClient } = require("chromadb");
-const { Pool } = require("pg");
-const { createClient } = require("redis");
-const fs = require("fs");
+import { ChromaClient } from "chromadb";
+import { Pool } from "pg";
+import { createClient } from "redis";
+import fs from "fs";
+import { Pinecone } from "@pinecone-database/pinecone";
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: "/etc/app.env" });
 } else {
   require("dotenv").config();
 }
+
+const pc = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY ?? "", // Add default value for PINECONE_API_KEY
+});
 
 const client = new ChromaClient();
 
@@ -15,7 +20,7 @@ const redisClient = createClient(
     ? {
         socket: {
           host: process.env.REDIS_HOST,
-          port: process.env.REDIS_PORT,
+          port: parseInt(process.env.REDIS_PORT || "0"), // Convert port to number
           // if your ElastiCache Redis setup uses a password
           // password: 'your-password'
           tls: true,
@@ -35,11 +40,11 @@ const pool = new Pool({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  port: parseInt(process.env.DB_PORT || "0"), // Convert port to number
   ssl: process.env.NODE_ENV === "production" && {
     ca: fs.readFileSync("/etc/ssl/certs/global-bundle.pem").toString(),
     // rejectUnauthorized: false, // For testing purposes. For production, use proper SSL configuration.
   },
 });
 
-module.exports = { client, pool, redisClient };
+export { client, pool, redisClient, pc };
