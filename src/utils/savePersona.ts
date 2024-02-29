@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { client, pc } from "../db";
 import openai from "./openaiClient";
-import { Metadata } from "../models/archival_memory.model";
+import { MemoryMetadata } from "../models/archival_memory.model";
 
 /**
  * Saves a persona to the database.
@@ -17,7 +17,7 @@ async function savePersona(
   persona: string,
   documentId: string | null = null
 ) {
-  const index = pc.index<Metadata>(`${persona}_personas`);
+  const index = pc.index<MemoryMetadata>(`${persona}-personas`);
 
   const collection = await client.getOrCreateCollection({
     name: `${persona}_personas`,

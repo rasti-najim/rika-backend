@@ -1,8 +1,9 @@
 import path from "path";
 const debug = require("debug")("app:fetchPersona");
 import archivalMemorySearch from "../functions/archival_memory_search";
-import { client } from "../db";
+import { client, pc } from "../db";
 import { IncludeEnum } from "chromadb";
+import fetchEmbeddingIds from "./fetchEmbeddingIds";
 
 const humanFile = path.join(__dirname, "../personas/human.txt");
 const aiFile = path.join(__dirname, "../personas/ai.txt");
@@ -17,6 +18,8 @@ export default async function fetchPersona(
   userId: string,
   persona: string
 ): Promise<(string | null)[]> {
+  const index = pc.index(`${persona}-personas`);
+
   const collection = await client.getOrCreateCollection({
     name: `${persona}_personas`,
   });
@@ -32,6 +35,9 @@ export default async function fetchPersona(
 
   debug(results);
   debug(results.metadatas);
+
+  // const ids = await fetchEmbeddingIds();
+  // const pineconeResults = await index.fetch(ids);
 
   const personaInfo = results.documents;
 

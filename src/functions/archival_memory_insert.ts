@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { client, pc } from "../db";
 import openai from "../utils/openaiClient";
 import { OpenAIEmbeddingFunction } from "chromadb";
-import { Metadata } from "../models/archival_memory.model";
+import { MemoryMetadata } from "../models/archival_memory.model";
 require("dotenv").config();
 
 /**
@@ -22,7 +22,7 @@ async function archivalMemoryInsert(
     //   openai_api_key: process.env.OPENAI_API_KEY,
     // });
 
-    const index = pc.index<Metadata>("archival_memory");
+    const index = pc.index<MemoryMetadata>("archival-memory");
 
     const collection = await client.getOrCreateCollection({
       name: "archival_memory",

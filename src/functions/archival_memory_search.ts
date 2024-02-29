@@ -1,6 +1,7 @@
 import { IncludeEnum } from "chromadb";
 import { client, pc } from "../db";
 import openai from "../utils/openaiClient";
+import { MemoryMetadata } from "../models/archival_memory.model";
 
 type Metadata = {
   userId: string;
@@ -21,6 +22,8 @@ async function search(
   count: number | null = null,
   start: number | null = null
 ): Promise<[string[], number, Metadata[]]> {
+  const index = pc.index<MemoryMetadata>("archival-memory");
+
   const collection = await client.getOrCreateCollection({
     name: "archival_memory",
     // embeddingFunction: embedder,
@@ -42,6 +45,15 @@ async function search(
     include: [IncludeEnum.Documents, IncludeEnum.Metadatas],
     // queryTexts: ["AI"],
   });
+
+  const pineconeResults = await index.query({
+    topK: 10,
+    vector: embeddings,
+    filter: { userId: userId },
+    includeMetadata: true,
+  });
+
+  console.log(pineconeResults);
 
   console.log(results);
   console.log(results.documents[0]);
