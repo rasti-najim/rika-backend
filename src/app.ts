@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
+import fs from "fs";
 import path from "path";
 import ngrok from "@ngrok/ngrok";
 const debug = require("debug")("app");
@@ -13,6 +14,7 @@ import audio from "./routes/audio";
 import auth from "./routes/auth";
 import embeddings from "./routes/embeddings";
 import messages from "./routes/messages";
+import voice from "./routes/voice";
 
 import chat from "./utils/chat";
 import handleShutdown from "./utils/handle_shutdown";
@@ -20,6 +22,7 @@ import fetchPersona from "./utils/fetchPersona";
 import archivalMemoryInsert from "./functions/archival_memory_insert";
 import fetchRecallMemory from "./utils/fetchRecallMemory";
 import { redisClient } from "./db";
+import openai from "./utils/openaiClient";
 import { createSystemMessage } from "./functions/core_memory";
 import authenticateSocket from "./middleware/authenticateSocket";
 
@@ -32,7 +35,7 @@ interface CustomSocket extends Socket {
   };
 }
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static("uploads"));
@@ -41,6 +44,7 @@ app.use("/audio", audio);
 app.use("/auth", auth);
 app.use("/embeddings", embeddings);
 app.use("/messages", messages);
+app.use("/voice", voice);
 
 // Create an HTTP server and pass the Express app
 const server = http.createServer(app);
@@ -157,6 +161,53 @@ io.on("connection", async (socket: Socket) => {
 
       // After processing, emit a response back to the client
       socket.emit("receive_message", completion);
+    } catch (error) {
+      console.error("Error:", error);
+      socket.emit("error", "Internal Server Error");
+    }
+  });
+
+  socket.on("send_audio", async (data) => {
+    try {
+      const { base64Audio, fileName } = data;
+      const filePath = path.join("uploads", fileName);
+      let buffer = Buffer.from(base64Audio, "base64");
+
+      await fs.promises.writeFile(filePath, buffer);
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: fs.createReadStream(filePath),
+        model: "whisper-1",
+      });
+      debug("transcription", transcription);
+
+      const message = { role: "user", content: transcription.text };
+      const completion = await chat({
+        userId: userId,
+        // @ts-ignore
+        message: message,
+        time: new Date().toISOString(),
+      });
+      debug("completion", completion);
+
+      // @ts-ignore
+      const assistantMessage = completion?.choices[0].message.content;
+      debug("assistantMessage", assistantMessage);
+      const mp3 = await openai.audio.speech.create({
+        model: "tts-1",
+        voice: "alloy",
+        input: assistantMessage,
+      });
+
+      const speechFile = path.join("uploads", "speach.mp3");
+      console.log(speechFile);
+      buffer = Buffer.from(await mp3.arrayBuffer());
+      await fs.promises.writeFile(speechFile, buffer);
+      // const base64Speech = buffer.toString("base64");
+
+      const ngrokUrl = app.get("ngrokUrl");
+      const audioUrl = `${ngrokUrl}/${speechFile}`;
+      socket.emit("recieve_audio", audioUrl);
     } catch (error) {
       console.error("Error:", error);
       socket.emit("error", "Internal Server Error");
