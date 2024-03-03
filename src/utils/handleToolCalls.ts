@@ -9,7 +9,7 @@ import OpenAI from "openai";
 async function handleToolCalls(
   userId: string,
   completion: OpenAI.Chat.ChatCompletion
-) {
+): Promise<OpenAI.Chat.ChatCompletionToolMessageParam | undefined> {
   console.log("calling handleToolCalls");
   if (!completion.choices[0].message.tool_calls) {
     return;
@@ -18,7 +18,7 @@ async function handleToolCalls(
     completion.choices[0].message?.tool_calls[0].function.arguments
   );
   const tool_call_id = completion.choices[0].message.tool_calls[0].id;
-  const toolMessage = {
+  const toolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
     role: "tool",
     content: "memory updated successfully",
     tool_call_id: tool_call_id,
@@ -87,7 +87,7 @@ async function handleToolCalls(
     await archivalMemorySearch(userId, toolCallArguments.query);
   }
 
-  return toolMessage;
+  return Promise.resolve(toolMessage);
 
   // try {
   //   // const response = await fetch("http://localhost:8080/chat", {

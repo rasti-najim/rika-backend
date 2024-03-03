@@ -32,8 +32,16 @@ type Message = {
   time: string;
 };
 
-export default async function chat(data: ChatData) {
-  const { userId, message, time } = data;
+export default async function chat(
+  userId: string,
+  message: OpenAI.Chat.ChatCompletionMessageParam,
+  time: string
+): Promise<
+  | OpenAI.Chat.ChatCompletion
+  | OpenAI.Chat.ChatCompletionToolMessageParam
+  | undefined
+> {
+  // const { userId, message, time } = data;
   const listKey = `messages_${userId}`;
   const ttl = 3600; // TTL in seconds, for example, 1 hour
 
