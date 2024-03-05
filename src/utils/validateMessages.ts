@@ -1,4 +1,4 @@
-function validateMessages(messages) {
+function validateMessages(messages: any) {
   for (let i = 0; i < messages.length; ) {
     const current = messages[i];
     const next = messages[i + 1];
@@ -40,4 +40,4 @@ function validateMessages(messages) {
   }
 }
 
-module.exports = validateMessages;
+export default validateMessages;

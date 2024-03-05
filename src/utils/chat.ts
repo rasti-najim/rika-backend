@@ -32,7 +32,7 @@ type Message = {
   time: string;
 };
 
-export default async function chat(
+export async function chat(
   userId: string,
   message: OpenAI.Chat.ChatCompletionMessageParam,
   time: string
@@ -201,6 +201,102 @@ export default async function chat(
 
   return completion;
 }
+
+export async function* chatStream(
+  userId: string,
+  message: OpenAI.Chat.ChatCompletionMessageParam,
+  time: string
+) {
+  // const { userId, message, time } = data;
+  const listKey = `messages_${userId}`;
+  const ttl = 3600; // TTL in seconds, for example, 1 hour
+
+  let systemMessage: string | null = null;
+  systemMessage = await redisClient.get(`system_message_${userId}`);
+  if (!systemMessage) {
+    systemMessage = await createSystemMessage(userId);
+    await redisClient.set(`system_message_${userId}`, systemMessage, {
+      EX: ttl,
+    });
+  }
+  debug("User ID", userId);
+  debug("System Message", systemMessage);
+
+  // Load previous messages
+  let prevMessages = await loadAndPreparePreviousMessages(userId, listKey, ttl);
+
+  // Prepare new messages array
+  let messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+    { role: "system", content: systemMessage },
+  ];
+  if (prevMessages.length) messages = [...messages, ...prevMessages];
+  messages.push(message);
+
+  // Validate and possibly update messages in Redis
+  const params: OpenAI.Chat.ChatCompletionCreateParams = {
+    messages: messages,
+    tools: tools,
+    tool_choice: "auto",
+    model: "gpt-4-1106-preview",
+    stream: true,
+  };
+  debug("messages", messages);
+  const stream = await openai.chat.completions.create(params);
+
+  for await (const chunk of stream) {
+    if (chunk.choices[0].finish_reason === "tool_calls") {
+      yield "tool_calls";
+      break;
+    }
+    yield chunk.choices[0]?.delta?.content;
+  }
+}
+
+// export async function consumeChatStream(
+//   userId: string,
+//   message: OpenAI.Chat.ChatCompletionMessageParam,
+//   time: string
+// ) {
+//   let finalResult = [];
+//   let toolCallsDetected = false;
+
+//   for await (const content of chatStream(userId, message, time)) {
+//     if (content === "tool_calls") {
+//       toolCallsDetected = true;
+//       break;
+//     }
+//     finalResult.push(content);
+//   }
+
+//   if (toolCallsDetected) {
+//     messages.push({
+//       role: "assistant",
+//       content: completion.choices[0].message.content || "",
+//     });
+
+//     let date = new Date();
+//     let dateString = date.toISOString().replace("T", " ").substring(0, 19);
+
+//     const newMessages: Message[] = [
+//       { message: message, time: time },
+//       { message: completion.choices[0].message, time: dateString },
+//     ];
+
+//     await saveNewMessages(userId, newMessages, listKey, ttl);
+
+//     const useTools = completion.choices[0].finish_reason === "tool_calls";
+//     if (useTools) {
+//       const toolMessage = await handleToolCalls(userId, completion);
+//       //   res.send(toolMessage);
+//       return toolMessage;
+//     }
+
+//     return completion;
+//   } else {
+//     // Process the normal flow
+//     return finalResult;
+//   }
+// }
 
 async function loadAndPreparePreviousMessages(
   userId: string,

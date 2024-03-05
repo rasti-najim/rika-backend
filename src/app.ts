@@ -16,7 +16,7 @@ import auth from "./routes/auth";
 import embeddings from "./routes/embeddings";
 import messages from "./routes/messages";
 
-import chat from "./utils/chat";
+import { chat } from "./utils/chat";
 import voice from "./utils/voice";
 import handleShutdown from "./utils/handle_shutdown";
 import fetchPersona from "./utils/fetchPersona";
