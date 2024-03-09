@@ -1,4 +1,5 @@
-import express from "express";
+import express, { Request } from "express";
+import expressWs from "express-ws";
 import cors from "cors";
 import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
@@ -8,7 +9,13 @@ import path from "path";
 import ngrok from "@ngrok/ngrok";
 const debug = require("debug")("app");
 require("dotenv").config();
-const app = express();
+const expressApp = express();
+// Create an HTTP server and pass the Express app
+const server = http.createServer(expressApp);
+
+const expressWsInstance = expressWs(expressApp, server);
+
+const app = expressWsInstance.app;
 
 // const chat = require("./routes/chat");
 import audio from "./routes/audio";
@@ -26,6 +33,9 @@ import { redisClient } from "./db";
 import openai from "./utils/openaiClient";
 import { createSystemMessage } from "./functions/core_memory";
 import authenticateSocket from "./middleware/authenticateSocket";
+import { RawData, WebSocket } from "ws";
+import { LLMDummyMock } from "./utils/dumbLlm";
+import { DemoLlmClient, RetellRequest } from "./utils/demoLlmClient";
 
 const PORT: number | string = process.env.PORT || 8080;
 
@@ -47,7 +57,7 @@ app.use("/embeddings", embeddings);
 app.use("/messages", messages);
 
 // Create an HTTP server and pass the Express app
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
 if (process.env.NODE_ENV === "development") {
   ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
@@ -84,6 +94,42 @@ redisClient.connect().catch((err) => {
 //   .catch((err) => {
 //     console.error("Error connecting to Redis subscriber:", err);
 //   });
+
+// ...
+
+app.ws("/llm-websocket/:call_id", async (ws: WebSocket, req: Request) => {
+  // callId is a unique identifier of a call, containing all information about it
+  const callId = req.params.call_id;
+  // const llmClient = new LLMDummyMock();
+  const llmClient = new DemoLlmClient();
+
+  // You need to send the first message here, but for now let's skip that.
+
+  // Send Begin message
+  llmClient.BeginMessage(ws);
+
+  ws.on("message", async (data: RawData, isBinary: boolean) => {
+    // Retell server will send transcript from caller along with other information
+    // You will be adding code to process and respond here
+    if (isBinary) {
+      console.error("Got binary message instead of text in websocket.");
+      ws.close(1002, "Cannot find corresponding Retell LLM.");
+    }
+    try {
+      const request: RetellRequest = JSON.parse(data.toString());
+      // LLM will think about a response
+      llmClient.DraftResponse(request, ws);
+    } catch (err) {
+      console.error("Error in parsing LLM websocket message: ", err);
+      ws.close(1002, "Cannot parse incoming message.");
+    }
+    debug(data);
+  });
+
+  ws.on("error", (err) => {
+    console.error("Error received in LLM websocket client: ", err);
+  });
+});
 
 // Attach Socket.IO to the HTTP server
 const io = new SocketIOServer(server, {
