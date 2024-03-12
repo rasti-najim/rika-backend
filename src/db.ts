@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { createClient } from "redis";
 import fs from "fs";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { RetellClient } from "retell-sdk";
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: "/etc/app.env" });
 } else {
@@ -47,4 +48,8 @@ const pool = new Pool({
   },
 });
 
-export { client, pool, redisClient, pc };
+const retellClient = new RetellClient({
+  apiKey: process.env.RETELL_API_KEY,
+});
+
+export { client, pool, redisClient, pc, retellClient };

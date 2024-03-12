@@ -22,6 +22,7 @@ import audio from "./routes/audio";
 import auth from "./routes/auth";
 import embeddings from "./routes/embeddings";
 import messages from "./routes/messages";
+import initilizeVoice from "./routes/initializeVoice";
 
 import { chat } from "./utils/chat";
 import voice from "./utils/voice";
@@ -29,13 +30,16 @@ import handleShutdown from "./utils/handle_shutdown";
 import fetchPersona from "./utils/fetchPersona";
 import archivalMemoryInsert from "./functions/archival_memory_insert";
 import fetchRecallMemory from "./utils/fetchRecallMemory";
-import { redisClient } from "./db";
+import { redisClient, retellClient } from "./db";
 import openai from "./utils/openaiClient";
 import { createSystemMessage } from "./functions/core_memory";
 import authenticateSocket from "./middleware/authenticateSocket";
 import { RawData, WebSocket } from "ws";
 import { LLMDummyMock } from "./utils/dumbLlm";
-import { DemoLlmClient, RetellRequest } from "./utils/demoLlmClient";
+import { DemoLlmClient } from "./utils/demoLlmClient";
+import LLMClient, { RetellRequest } from "./utils/llmClient";
+import { CustomRequest } from "./utils/types/express";
+import authenticateWs from "./middleware/authenticateWs";
 
 const PORT: number | string = process.env.PORT || 8080;
 
@@ -55,6 +59,7 @@ app.use("/audio", audio);
 app.use("/auth", auth);
 app.use("/embeddings", embeddings);
 app.use("/messages", messages);
+app.use("/initialize_voice", initilizeVoice);
 
 // Create an HTTP server and pass the Express app
 // const server = http.createServer(app);
@@ -97,37 +102,66 @@ redisClient.connect().catch((err) => {
 
 // ...
 
-app.ws("/llm-websocket/:call_id", async (ws: WebSocket, req: Request) => {
-  // callId is a unique identifier of a call, containing all information about it
-  const callId = req.params.call_id;
-  // const llmClient = new LLMDummyMock();
-  const llmClient = new DemoLlmClient();
+app.ws(
+  "/llm-websocket/:call_id",
+  authenticateWs,
+  async (ws: WebSocket, req: CustomRequest) => {
+    const userId = req.user?.id;
+    // callId is a unique identifier of a call, containing all information about it
+    const callId = req.params.call_id;
+    // const llmClient = new LLMDummyMock();
+    await createSystemMessage(userId ?? "");
+    const llmClient = new LLMClient(userId ?? "");
 
-  // You need to send the first message here, but for now let's skip that.
+    // You need to send the first message here, but for now let's skip that.
 
-  // Send Begin message
-  llmClient.BeginMessage(ws);
+    // Send Begin message
+    llmClient.beginMessage(ws);
 
-  ws.on("message", async (data: RawData, isBinary: boolean) => {
-    // Retell server will send transcript from caller along with other information
-    // You will be adding code to process and respond here
-    if (isBinary) {
-      console.error("Got binary message instead of text in websocket.");
-      ws.close(1002, "Cannot find corresponding Retell LLM.");
-    }
-    try {
-      const request: RetellRequest = JSON.parse(data.toString());
-      // LLM will think about a response
-      llmClient.DraftResponse(request, ws);
-    } catch (err) {
-      console.error("Error in parsing LLM websocket message: ", err);
-      ws.close(1002, "Cannot parse incoming message.");
-    }
-    debug(data);
+    ws.on("message", async (data: RawData, isBinary: boolean) => {
+      // Retell server will send transcript from caller along with other information
+      // You will be adding code to process and respond here
+      if (isBinary) {
+        console.error("Got binary message instead of text in websocket.");
+        ws.close(1002, "Cannot find corresponding Retell LLM.");
+      }
+      try {
+        const request: RetellRequest = JSON.parse(data.toString());
+        // LLM will think about a response
+        llmClient.chat(request, ws);
+      } catch (err) {
+        console.error("Error in parsing LLM websocket message: ", err);
+        ws.close(1002, "Cannot parse incoming message.");
+      }
+      debug(data);
+    });
+
+    ws.on("error", (err) => {
+      console.error("Error received in LLM websocket client: ", err);
+    });
+  }
+);
+
+app.ws("/audio-websocket", async (ws: WebSocket, req: Request) => {
+  ws.on("start_audio", async (data: RawData, isBinary: boolean) => {
+    const res = await retellClient.createAgent({
+      agentName: "Rika",
+      voiceId: "openai-Nova",
+      llmWebsocketUrl: `wss://${app.get("ngrokUrl")}/llm-websocket`,
+    });
+
+    const response = await retellClient.registerCall({
+      agentId: res.agent?.agentId ?? "",
+      // @ts-ignore
+      audioWebsocketProtocol: "web",
+      // @ts-ignore
+      audioEncoding: "s16le",
+      sampleRate: 24000,
+    });
   });
 
   ws.on("error", (err) => {
-    console.error("Error received in LLM websocket client: ", err);
+    console.error("Error received in audio websocket client: ", err);
   });
 });
 
