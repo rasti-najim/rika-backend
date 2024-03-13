@@ -19,7 +19,7 @@ import saveMessages from "./saveMessages";
 import loadMessages from "./loadMessages";
 import isPaired from "../utils/isPaired";
 import validateMessages from "./validateMessages";
-import handleToolCalls from "./handleToolCalls";
+import handleToolCalls, { ToolCall } from "./handleToolCalls";
 
 interface ChatData {
   userId: string;
@@ -123,7 +123,7 @@ export async function chat(
     messages: messages,
     tools: tools,
     tool_choice: "auto",
-    model: "gpt-4-1106-preview",
+    model: "gpt-4-0125-preview",
   };
   debug("messages", messages);
   const completion: OpenAI.Chat.ChatCompletion =
@@ -192,9 +192,23 @@ export async function chat(
 
   // await saveMessages(newMessages, messagesFile);
 
+  if (!completion.choices[0].message.tool_calls) {
+    return completion;
+  }
+
   const useTools = completion.choices[0].finish_reason === "tool_calls";
+  const toolCallArguments = JSON.parse(
+    completion.choices[0].message?.tool_calls[0].function.arguments
+  );
+  const toolCall: ToolCall = {
+    id: completion.choices[0].message.tool_calls[0].id,
+    function: {
+      name: completion.choices[0].message.tool_calls[0].function.name,
+      arguments: toolCallArguments,
+    },
+  };
   if (useTools) {
-    const toolMessage = await handleToolCalls(userId, completion);
+    const toolMessage = await handleToolCalls(userId, toolCall);
     //   res.send(toolMessage);
     return toolMessage;
   }
@@ -237,7 +251,7 @@ export async function* chatStream(
     messages: messages,
     tools: tools,
     tool_choice: "auto",
-    model: "gpt-4-1106-preview",
+    model: "gpt-4-0125-preview",
     stream: true,
   };
   debug("messages", messages);

@@ -4,9 +4,10 @@ import { CHAT } from "../constants/constants";
 import tools from "../function_calls/functions";
 import openai from "./openaiClient";
 const debug = require("debug")("app:llmClient");
-import handleToolCalls from "./handleToolCalls";
+import handleToolCalls, { ToolCall } from "./handleToolCalls";
 import { createSystemMessage } from "../functions/core_memory";
 import { redisClient } from "../db";
+import saveMessages from "../utils/saveMessages";
 
 interface Utterance {
   role: "agent" | "user";
@@ -33,11 +34,18 @@ export interface FunctionCall {
   result?: string;
 }
 
+type Message = {
+  message: OpenAI.Chat.ChatCompletionMessageParam;
+  time: string;
+};
+
 class LLMClient {
   private userId: string;
+  private lastConversationLength: number;
 
   constructor(userId: string) {
     this.userId = userId;
+    this.lastConversationLength = 0;
   }
 
   beginMessage(ws: Websocket) {
@@ -50,7 +58,7 @@ class LLMClient {
     ws.send(JSON.stringify(res));
   }
 
-  private conversatoinToMessages(conversation: Utterance[]) {
+  private async conversatoinToMessages(conversation: Utterance[]) {
     let result: OpenAI.Chat.ChatCompletionMessageParam[] = [];
     for (let turn of conversation) {
       result.push({
@@ -58,11 +66,33 @@ class LLMClient {
         content: turn.content,
       });
     }
+    debug("Result", result);
+
+    let newUtternaces: OpenAI.Chat.ChatCompletionMessageParam[] = result.slice(
+      this.lastConversationLength
+    );
+    if (newUtternaces.length > 0) {
+      let date = new Date();
+      let dateString = date.toISOString().replace("T", " ").substring(0, 19);
+
+      const newMessages: Message[] = newUtternaces.map((utterance) => {
+        return {
+          message: utterance,
+          time: dateString,
+        };
+      });
+
+      debug("New Messages", newMessages);
+      await saveMessages(this.userId, newMessages);
+    }
+
+    this.lastConversationLength = conversation.length;
+
     return result;
   }
 
   private async preparePrompt(request: RetellRequest) {
-    const transcript = this.conversatoinToMessages(request.transcript);
+    const transcript = await this.conversatoinToMessages(request.transcript);
     const ttl = 3600; // 1 hour TTL
     let systemMessage: string | null = null;
     systemMessage = await redisClient.get(`system_message_${this.userId}`);
@@ -112,7 +142,7 @@ class LLMClient {
 
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
       messages: messages,
-      model: "gpt-4-1106-preview",
+      model: "gpt-4-0125-preview",
       tools: tools,
       stream: true,
     };
@@ -155,17 +185,21 @@ class LLMClient {
         }
 
         if (funcCall != null) {
-          if (funcCall.funcName === "end_call") {
-            funcCall.arguments = JSON.parse(funcArguments);
-            const res: RetellResponse = {
-              response_id: request.response_id,
-              // @ts-ignore
-              content: funcCall.arguments?.message,
-              content_complete: true,
-              end_call: true,
-            };
-            ws.send(JSON.stringify(res));
-          }
+          const toolCall: ToolCall = {
+            id: funcCall.id,
+            function: {
+              name: funcCall.funcName ?? "",
+              arguments: funcCall.arguments,
+            },
+          };
+          const toolMessage = await handleToolCalls(this.userId, toolCall);
+          const res: RetellResponse = {
+            response_id: request.response_id,
+            // @ts-ignore
+            content: toolMessage?.content,
+            content_complete: true,
+          };
+          ws.send(JSON.stringify(res));
         }
       }
     } catch (err) {
