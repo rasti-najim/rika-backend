@@ -5,6 +5,7 @@ import conversationSearchDate from "../functions/conversation_search_date";
 import archivalMemoryInsert from "../functions/archival_memory_insert";
 import archivalMemorySearch from "../functions/archival_memory_search";
 import OpenAI from "openai";
+const debug = require("debug")("app:handleToolCalls");
 import { FunctionCall } from "./llmClient";
 
 export type ToolCall = {
@@ -19,7 +20,7 @@ async function handleToolCalls(
   userId: string,
   toolCall: ToolCall
 ): Promise<OpenAI.Chat.ChatCompletionToolMessageParam | undefined> {
-  console.log("calling handleToolCalls");
+  debug("calling handleToolCalls");
   const toolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
     role: "tool",
     content: "memory updated successfully",
@@ -28,15 +29,16 @@ async function handleToolCalls(
   // messages.push(toolMessage);
 
   if (toolCall.function.name === "core_memory_append") {
+    debug("calling core_memory_append");
     const memoryStatus = await coreMemoryAppend(
       userId,
       toolCall.function.arguments.name,
       toolCall.function.arguments.content
     );
-    console.log("calling core_memory_append");
     toolMessage.content = memoryStatus; // Assign an empty string if memoryStatus is null
     console.log(memoryStatus);
   } else if (toolCall.function.name === "core_memory_replace") {
+    debug("calling core_memory_replace");
     await coreMemoryReplace(
       userId,
       toolCall.function.arguments.name,
@@ -44,15 +46,12 @@ async function handleToolCalls(
       toolCall.function.arguments.new_content
     );
   } else if (toolCall.function.name === "conversation_search") {
-    console.log(
-      "calling conversation_search",
-      toolCall.function.arguments.query
-    );
+    debug("calling conversation_search", toolCall.function.arguments.query);
     const searchResult = await conversationSearch(
       userId,
       toolCall.function.arguments.query
     );
-    console.log(searchResult);
+    debug(searchResult);
     toolMessage.content = searchResult;
     // } else if (
     //   completion.choices[0].message.tool_calls[0].function.name ===
@@ -70,17 +69,17 @@ async function handleToolCalls(
     //   console.log(searchResult);
     //   toolMessage.content = searchResult;
   } else if (toolCall.function.name === "archival_memory_insert") {
-    console.log(
+    debug(
       "calling archival_memory_insert",
       toolCall.function.arguments.content
     );
     await archivalMemoryInsert(userId, toolCall.function.arguments.content);
   } else if (toolCall.function.name === "archival_memory_search") {
-    console.log(
-      "calling archival_memory_search",
-      toolCall.function.arguments.query
-    );
+    debug("calling archival_memory_search", toolCall.function.arguments.query);
     await archivalMemorySearch(userId, toolCall.function.arguments.query);
+  } else if (toolCall.function.name === "send_message") {
+    debug("calling send_message", toolCall.function.arguments.message);
+    toolMessage.content = toolCall.function.arguments.message;
   }
 
   return Promise.resolve(toolMessage);

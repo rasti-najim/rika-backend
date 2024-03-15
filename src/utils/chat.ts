@@ -118,6 +118,77 @@ export async function chat(
   //   messages = [messages[0], messages[1]];
   // }
 
+  // const testSystemMessage =
+  //   systemMessage +
+  //   `These are the available actions:
+  // - send_message: Sends a message to the human user.
+  // - core_memory_append: Append to the contents of core memory.
+  // - core_memory_replace: Replace to the contents of core memory. To delete memories, use an empty string for new_content.
+  // - archival_memory_insert: Add to archival memory. Make sure to phrase the memory contents such that it can be easily queried later.
+  // - archival_memory_search: Search archival memory using semantic (embedding-based) search.`;
+
+  // const testTools: OpenAI.Chat.ChatCompletionTool[] = [
+  //   {
+  //     type: "function",
+  //     function: {
+  //       name: "select_action",
+  //       description: "Selects an action",
+  //       parameters: {
+  //         type: "object",
+  //         properties: {
+  //           thought: {
+  //             type: "string",
+  //             description: "The reasoning behind the selection of an action",
+  //           },
+  //           action: {
+  //             type: "string",
+  //             enum: [
+  //               "send_message",
+  //               "core_memory_append",
+  //               "core_memory_replace",
+  //               "archival_memory_insert",
+  //               "archival_memory_search",
+  //             ],
+  //             description: "Action name to accomplish a task",
+  //           },
+  //           request_heartbeat: {
+  //             type: "boolean",
+  //             description:
+  //               "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
+  //           },
+  //         },
+
+  //         required: ["thought", "action", "request_heartbeat"],
+  //       },
+  //     },
+  //   },
+  // ];
+
+  // debug("Test system message", testSystemMessage);
+
+  // const testMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+  //   { role: "system", content: testSystemMessage },
+  //   message,
+  // ];
+  // const testParams: OpenAI.Chat.ChatCompletionCreateParams = {
+  //   messages: testMessages,
+  //   tools: testTools,
+  //   tool_choice: { type: "function", function: { name: "select_action" } },
+  //   model: "gpt-4-0125-preview",
+  // };
+
+  // const testCompletion: OpenAI.Chat.ChatCompletion =
+  //   await openai.chat.completions.create(testParams);
+  // if (!testCompletion.choices[0].message.tool_calls) {
+  //   return testCompletion;
+  // }
+  // const testToolCallArguments = JSON.parse(
+  //   testCompletion.choices[0].message?.tool_calls[0].function.arguments
+  // );
+  // debug("thought", testToolCallArguments.thought);
+  // debug("action", testToolCallArguments.action);
+  // debug("request_heartbeat", testToolCallArguments.request_heartbeat);
+
   // Validate and possibly update messages in Redis
   const params: OpenAI.Chat.ChatCompletionCreateParams = {
     messages: messages,
@@ -129,7 +200,7 @@ export async function chat(
   const completion: OpenAI.Chat.ChatCompletion =
     await openai.chat.completions.create(params);
 
-  console.log(completion.choices[0]);
+  debug(completion.choices[0]);
 
   messages.push({
     role: "assistant",

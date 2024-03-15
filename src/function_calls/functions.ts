@@ -4,6 +4,24 @@ const tools: OpenAI.Chat.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
+      name: "send_message",
+      description: "Sends a message to the human user.",
+      parameters: {
+        type: "object",
+        properties: {
+          message: {
+            type: "string",
+            description:
+              "Message contents. All unicode (including emojis) are supported.",
+          },
+        },
+        required: ["message"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "core_memory_append",
       description: "Append to the contents of core memory.",
       parameters: {
@@ -19,11 +37,11 @@ const tools: OpenAI.Chat.ChatCompletionTool[] = [
             description:
               "Content to write to the memory. All unicode (including emojis) are supported.",
           },
-          // request_heartbeat: {
-          //   type: "boolean",
-          //   description:
-          //     "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
-          // },
+          request_heartbeat: {
+            type: "boolean",
+            description:
+              "Request an immediate heartbeat after function execution. Set to 'true' if you want to send a follow-up message or run a follow-up function.",
+          },
         },
         required: ["name", "content"],
       },

@@ -142,6 +142,64 @@ app.ws(
   }
 );
 
+app.ws("/chat", authenticateWs, async (ws: WebSocket, req: CustomRequest) => {
+  debug("human connected");
+  debug(req.user?.id); // Access the 'user' property directly
+  const userId = req.user?.id;
+
+  if (!userId) {
+    ws.close(4000, "No user id provided");
+    return;
+  }
+
+  const humanPersona = await fetchPersona(userId, "human");
+  const aiPersona = await fetchPersona(userId, "ai");
+  debug(humanPersona);
+  debug(aiPersona);
+  // await fetchRecallMemory(userId);
+
+  await createSystemMessage(userId);
+
+  ws.on("message", async (data: RawData, isBinary: boolean) => {
+    // Assuming 'data' is a JSON string, parse it
+    const messageData = JSON.parse(data.toString());
+    const { message, time } = messageData;
+    try {
+      let completion = await chat(userId, message, time);
+
+      if (completion && "role" in completion && completion.role === "tool") {
+        completion = await chat(
+          userId,
+          completion,
+          new Date().toISOString().replace("T", " ").substring(0, 19)
+        );
+      }
+
+      // After processing, emit a response back to the client
+      ws.send(JSON.stringify(completion));
+    } catch (error) {
+      console.error("Error:", error);
+      ws.close(1011, "Internal Server Error");
+    }
+  });
+
+  // ws.on("send_audio", async (data) => {
+  //   try {
+  //     const { base64Audio, fileName } = data;
+  //     const audioUrl = await voice(userId, base64Audio, fileName, app);
+  //     ws.emit("recieve_audio", audioUrl);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     ws.emit("error", "Internal Server Error");
+  //   }
+  // });
+
+  ws.on("close", () => {
+    console.log("client disconnected");
+    // Handle cleanup, e.g., disconnecting from Redis if used
+  });
+});
+
 app.ws("/audio-websocket", async (ws: WebSocket, req: Request) => {
   ws.on("start_audio", async (data: RawData, isBinary: boolean) => {
     const res = await retellClient.createAgent({
@@ -174,103 +232,103 @@ const io = new SocketIOServer(server, {
   },
 });
 
-io.use(authenticateSocket);
+// io.use(authenticateSocket);
 
-io.on("connection", async (socket: Socket) => {
-  const customSocket = socket as CustomSocket;
-  debug("human connected");
-  debug(customSocket.user); // Access the 'user' property directly
-  const userId = customSocket.user.id;
+// io.on("connection", async (socket: Socket) => {
+//   const customSocket = socket as CustomSocket;
+//   debug("human connected");
+//   debug(customSocket.user); // Access the 'user' property directly
+//   const userId = customSocket.user.id;
 
-  const humanPersona = await fetchPersona(userId, "human");
-  const aiPersona = await fetchPersona(userId, "ai");
-  debug(humanPersona);
-  debug(aiPersona);
-  // await fetchRecallMemory(userId);
+//   const humanPersona = await fetchPersona(userId, "human");
+//   const aiPersona = await fetchPersona(userId, "ai");
+//   debug(humanPersona);
+//   debug(aiPersona);
+//   // await fetchRecallMemory(userId);
 
-  await createSystemMessage(userId);
+//   await createSystemMessage(userId);
 
-  // Define the heartbeat interval in milliseconds (e.g., 5000ms = 5 seconds)
-  // const heartbeatInterval = 5000;
+//   // Define the heartbeat interval in milliseconds (e.g., 5000ms = 5 seconds)
+//   // const heartbeatInterval = 5000;
 
-  // Function that performs the action on each heartbeat
-  // function onHeartbeat() {
-  //   console.log("Heartbeat action performed");
+//   // Function that performs the action on each heartbeat
+//   // function onHeartbeat() {
+//   //   console.log("Heartbeat action performed");
 
-  //   // Your custom logic here
-  //   // For example, check server status, perform a task, etc.
-  // }
+//   //   // Your custom logic here
+//   //   // For example, check server status, perform a task, etc.
+//   // }
 
-  // Set up the heartbeat interval
-  // setInterval(() => {
-  //   try {
-  //     onHeartbeat();
-  //   } catch (error) {
-  //     console.error("Heartbeat action failed", error);
-  //     // Optional: Implement error handling or recovery logic
-  //   }
-  // }, heartbeatInterval);
+//   // Set up the heartbeat interval
+//   // setInterval(() => {
+//   //   try {
+//   //     onHeartbeat();
+//   //   } catch (error) {
+//   //     console.error("Heartbeat action failed", error);
+//   //     // Optional: Implement error handling or recovery logic
+//   //   }
+//   // }, heartbeatInterval);
 
-  // var systemMessage = "";
-  // appendFilesToFile(aiFile, humanFile, chatFile, systemFile);
+//   // var systemMessage = "";
+//   // appendFilesToFile(aiFile, humanFile, chatFile, systemFile);
 
-  // const fileContents = readFileContentsSync(systemFile);
-  // // console.log(fileContents);
-  // systemMessage = fileContents;
+//   // const fileContents = readFileContentsSync(systemFile);
+//   // // console.log(fileContents);
+//   // systemMessage = fileContents;
 
-  // Handle heartbeat messages
-  // socket.on("heartbeat", async () => {
-  //   console.log("Heartbeat received from client");
-  //   // Perform any action you need on each heartbeat
-  //   // For example, log something, check server status, etc.
-  //   const message = {
-  //     role: "user",
-  //     content:
-  //       "Warning: the conversation history will soon reach its maximum length and be trimmed. Make sure to save any important information from the conversation to your memory before it is removed.",
-  //   };
-  //   let date = new Date();
-  //   let time = date.toISOString().replace("T", " ").substring(0, 19);
-  //   const completion = await chat({ userId, systemMessage, message, time });
-  //   debug("Memory updated using heatbeat", completion);
-  // });
+//   // Handle heartbeat messages
+//   // socket.on("heartbeat", async () => {
+//   //   console.log("Heartbeat received from client");
+//   //   // Perform any action you need on each heartbeat
+//   //   // For example, log something, check server status, etc.
+//   //   const message = {
+//   //     role: "user",
+//   //     content:
+//   //       "Warning: the conversation history will soon reach its maximum length and be trimmed. Make sure to save any important information from the conversation to your memory before it is removed.",
+//   //   };
+//   //   let date = new Date();
+//   //   let time = date.toISOString().replace("T", " ").substring(0, 19);
+//   //   const completion = await chat({ userId, systemMessage, message, time });
+//   //   debug("Memory updated using heatbeat", completion);
+//   // });
 
-  socket.on("send_message", async (data) => {
-    const { message, time } = data;
-    try {
-      let completion = await chat(userId, message, time);
+//   socket.on("send_message", async (data) => {
+//     const { message, time } = data;
+//     try {
+//       let completion = await chat(userId, message, time);
 
-      if (completion && "role" in completion && completion.role === "tool") {
-        completion = await chat(
-          userId,
-          completion,
-          new Date().toISOString().replace("T", " ").substring(0, 19)
-        );
-      }
+//       if (completion && "role" in completion && completion.role === "tool") {
+//         completion = await chat(
+//           userId,
+//           completion,
+//           new Date().toISOString().replace("T", " ").substring(0, 19)
+//         );
+//       }
 
-      // After processing, emit a response back to the client
-      socket.emit("receive_message", completion);
-    } catch (error) {
-      console.error("Error:", error);
-      socket.emit("error", "Internal Server Error");
-    }
-  });
+//       // After processing, emit a response back to the client
+//       socket.emit("receive_message", completion);
+//     } catch (error) {
+//       console.error("Error:", error);
+//       socket.emit("error", "Internal Server Error");
+//     }
+//   });
 
-  socket.on("send_audio", async (data) => {
-    try {
-      const { base64Audio, fileName } = data;
-      const audioUrl = await voice(userId, base64Audio, fileName, app);
-      socket.emit("recieve_audio", audioUrl);
-    } catch (error) {
-      console.error("Error:", error);
-      socket.emit("error", "Internal Server Error");
-    }
-  });
+//   socket.on("send_audio", async (data) => {
+//     try {
+//       const { base64Audio, fileName } = data;
+//       const audioUrl = await voice(userId, base64Audio, fileName, app);
+//       socket.emit("recieve_audio", audioUrl);
+//     } catch (error) {
+//       console.error("Error:", error);
+//       socket.emit("error", "Internal Server Error");
+//     }
+//   });
 
-  socket.on("disconnect", async () => {
-    console.log("client disconnected");
-    // await redisClient.disconnect();
-  });
-});
+//   socket.on("disconnect", async () => {
+//     console.log("client disconnected");
+//     // await redisClient.disconnect();
+//   });
+// });
 
 // Handle process termination:
 process.on("SIGINT", () => {
