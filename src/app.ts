@@ -24,7 +24,7 @@ import embeddings from "./routes/embeddings";
 import messages from "./routes/messages";
 import initilizeVoice from "./routes/initializeVoice";
 
-import { chat } from "./utils/chat";
+import { chat, LLMChat } from "./utils/chat";
 import voice from "./utils/voice";
 import handleShutdown from "./utils/handle_shutdown";
 import fetchPersona from "./utils/fetchPersona";
@@ -159,28 +159,37 @@ app.ws("/chat", authenticateWs, async (ws: WebSocket, req: CustomRequest) => {
   // await fetchRecallMemory(userId);
 
   await createSystemMessage(userId);
+  const llmChat = new LLMChat(userId);
 
   ws.on("message", async (data: RawData, isBinary: boolean) => {
     // Assuming 'data' is a JSON string, parse it
-    const messageData = JSON.parse(data.toString());
-    const { message, time } = messageData;
     try {
-      let completion = await chat(userId, message, time);
+      const messageData = JSON.parse(data.toString());
+      const { message, time } = messageData;
 
-      if (completion && "role" in completion && completion.role === "tool") {
-        completion = await chat(
-          userId,
-          completion,
-          new Date().toISOString().replace("T", " ").substring(0, 19)
-        );
-      }
-
-      // After processing, emit a response back to the client
-      ws.send(JSON.stringify(completion));
-    } catch (error) {
-      console.error("Error:", error);
-      ws.close(1011, "Internal Server Error");
+      await llmChat.chat(message, time, ws);
+    } catch (err) {
+      console.error("Error in parsing chat websocket message: ", err);
+      ws.close(1002, "Cannot parse incoming message.");
     }
+
+    // try {
+    //   let completion = await chat(userId, message, time);
+
+    //   if (completion && "role" in completion && completion.role === "tool") {
+    //     completion = await chat(
+    //       userId,
+    //       completion,
+    //       new Date().toISOString().replace("T", " ").substring(0, 19)
+    //     );
+    //   }
+
+    //   // After processing, emit a response back to the client
+    //   ws.send(JSON.stringify(completion));
+    // } catch (error) {
+    //   console.error("Error:", error);
+    //   ws.close(1011, "Internal Server Error");
+    // }
   });
 
   // ws.on("send_audio", async (data) => {
