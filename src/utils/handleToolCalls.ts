@@ -16,7 +16,7 @@ export type ToolCall = {
   };
 };
 
-async function handleToolCalls(
+async function handleToolCall(
   userId: string,
   toolCall: ToolCall
 ): Promise<OpenAI.Chat.ChatCompletionToolMessageParam | undefined> {
@@ -118,4 +118,4 @@ async function handleToolCalls(
   // }
 }
 
-export default handleToolCalls;
+export default handleToolCall;

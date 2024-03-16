@@ -20,7 +20,7 @@ import saveMessages from "./saveMessages";
 import loadMessages from "./loadMessages";
 import isPaired from "../utils/isPaired";
 import validateMessages from "./validateMessages";
-import handleToolCalls, { ToolCall } from "./handleToolCalls";
+import handleToolCall, { ToolCall } from "./handleToolCalls";
 
 interface ChatData {
   userId: string;
@@ -95,7 +95,7 @@ export class LLMChat {
     let date = new Date();
     let dateString = date.toISOString().replace("T", " ").substring(0, 19);
 
-    const newMessages: Message[] = [
+    let newMessages: Message[] = [
       { message: message, time: time },
       { message: completion.choices[0].message, time: dateString },
     ];
@@ -107,24 +107,60 @@ export class LLMChat {
     }
 
     const useTools = completion.choices[0].finish_reason === "tool_calls";
-    const toolCallArguments = JSON.parse(
-      completion.choices[0].message?.tool_calls[0].function.arguments
-    );
-    const toolCall: ToolCall = {
-      id: completion.choices[0].message.tool_calls[0].id,
-      function: {
-        name: completion.choices[0].message.tool_calls[0].function.name,
-        arguments: toolCallArguments,
-      },
-    };
+    const toolCalls = completion.choices[0].message.tool_calls;
+
     if (useTools) {
-      const toolMessage = await handleToolCalls(this.userId, toolCall);
-      //   res.send(toolMessage);
-      // if (toolMessage) this.chat(toolMessage, new Date().toISOString().replace("T", " ").substring(0, 19), ws);
-      return ws.send(JSON.stringify(toolMessage));
+      return this.handleToolCalls(toolCalls, messages, ws, listKey, ttl);
     }
 
     ws.send(JSON.stringify(completion));
+  }
+
+  private async handleToolCalls(
+    toolCalls: OpenAI.Chat.ChatCompletionMessageToolCall[],
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    ws: WebSocket,
+    listKey: string,
+    ttl: number
+  ) {
+    const newMessages: Message[] = [];
+    for (const toolCall of toolCalls) {
+      const toolCallArguments = JSON.parse(toolCall.function.arguments);
+      const toolCallMessage: ToolCall = {
+        id: toolCall.id,
+        function: {
+          name: toolCall.function.name,
+          arguments: toolCallArguments,
+        },
+      };
+      const toolMessage = await handleToolCall(this.userId, toolCallMessage);
+
+      if (toolMessage) {
+        messages.push(toolMessage);
+
+        newMessages.push({
+          message: toolMessage,
+          time: new Date().toISOString().replace("T", " ").substring(0, 19),
+        });
+      }
+    }
+
+    await this.saveNewMessages(this.userId, newMessages, listKey, ttl);
+
+    const toolCompletionParams: OpenAI.Chat.ChatCompletionCreateParams = {
+      messages: messages,
+      tools: tools,
+      tool_choice: "auto",
+      model: "gpt-4-0125-preview",
+    };
+    debug("messages", messages);
+
+    const toolCompletion: OpenAI.Chat.ChatCompletion =
+      await openai.chat.completions.create(toolCompletionParams);
+
+    //   res.send(toolMessage);
+    // if (toolMessage) this.chat(toolMessage, new Date().toISOString().replace("T", " ").substring(0, 19), ws);
+    return ws.send(JSON.stringify(toolCompletion));
   }
 
   private async loadAndPreparePreviousMessages(
@@ -447,7 +483,7 @@ export async function chat(
     },
   };
   if (useTools) {
-    const toolMessage = await handleToolCalls(userId, toolCall);
+    const toolMessage = await handleToolCall(userId, toolCall);
     //   res.send(toolMessage);
     return toolMessage;
   }

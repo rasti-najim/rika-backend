@@ -152,13 +152,13 @@ app.ws("/chat", authenticateWs, async (ws: WebSocket, req: CustomRequest) => {
     return;
   }
 
-  const humanPersona = await fetchPersona(userId, "human");
-  const aiPersona = await fetchPersona(userId, "ai");
-  debug(humanPersona);
-  debug(aiPersona);
-  // await fetchRecallMemory(userId);
+  // const humanPersona = await fetchPersona(userId, "human");
+  // const aiPersona = await fetchPersona(userId, "ai");
+  // debug(humanPersona);
+  // debug(aiPersona);
+  // // await fetchRecallMemory(userId);
 
-  await createSystemMessage(userId);
+  // await createSystemMessage(userId);
   const llmChat = new LLMChat(userId);
 
   ws.on("message", async (data: RawData, isBinary: boolean) => {
