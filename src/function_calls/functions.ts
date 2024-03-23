@@ -146,7 +146,7 @@ const tools: OpenAI.Chat.ChatCompletionTool[] = [
     function: {
       name: "archival_memory_insert",
       description:
-        "Add to archival memory. Make sure to phrase the memory contents such that it can be easily queried later.",
+        "Add to archival memory. Make sure to phrase the memory contents such that it can be easily queried later and write it in the form of an inner monologue reflecting on the contents of the message.",
       parameters: {
         type: "object",
         properties: {

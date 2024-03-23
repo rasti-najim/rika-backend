@@ -51,7 +51,7 @@ class LLMClient {
   beginMessage(ws: Websocket) {
     const res: RetellResponse = {
       response_id: 0,
-      content: "",
+      content: "Hey there!",
       content_complete: true,
       end_call: false,
     };

@@ -21,6 +21,7 @@ import loadMessages from "./loadMessages";
 import isPaired from "../utils/isPaired";
 import validateMessages from "./validateMessages";
 import handleToolCall, { ToolCall } from "./handleToolCalls";
+import archivalMemoryInsert from "../functions/archival_memory_insert";
 
 interface ChatData {
   userId: string;
@@ -73,6 +74,28 @@ export class LLMChat {
     ];
     if (prevMessages.length) messages = [...messages, ...prevMessages];
     messages.push(message);
+
+    const thoughtParams: OpenAI.Chat.ChatCompletionCreateParams = {
+      messages: messages,
+      tools: tools,
+      tool_choice: {
+        type: "function",
+        function: { name: "archival_memory_insert" },
+      },
+      model: "gpt-4-0125-preview",
+    };
+
+    const thoughtCompletion: OpenAI.Chat.ChatCompletion =
+      await openai.chat.completions.create(thoughtParams);
+
+    if (thoughtCompletion.choices[0].message.tool_calls) {
+      const toolCallArguments = JSON.parse(
+        thoughtCompletion.choices[0].message.tool_calls[0].function.arguments
+      );
+      debug("Thought completion", toolCallArguments.content);
+
+      await archivalMemoryInsert(this.userId, toolCallArguments.content);
+    }
 
     // Validate and possibly update messages in Redis
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
