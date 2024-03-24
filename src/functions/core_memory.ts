@@ -87,6 +87,8 @@ async function createSystemMessage(userId: string): Promise<string> {
     const header =
       "\nCore memory shown below (limited in size, additional information stored in archival / recall memory):\n";
 
+    // const recentThoughts = "Your most recent reflections:\n";
+
     // Combine all the data into a single string
     const systemMessage =
       CHAT + "\n" + header + formattedAiData + formattedHumanData;
