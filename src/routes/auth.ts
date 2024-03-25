@@ -22,8 +22,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: "sydnie.schowalter29@ethereal.email",
-    pass: "6M3FA43k1vr9S6a8YZ",
+    user: "willie.shanahan@ethereal.email",
+    pass: "EtC4vywkmkd6ADPHFJ",
   },
 });
 
@@ -96,7 +96,7 @@ router.post("/register", async (req, res) => {
       text: `Your verification code is: ${verificationCode}`,
     });
 
-    res.status(201).send(_.omit(newUser.rows[0], ["password"]));
+    res.status(201).send(_.omit(newUser.rows[0], ["password", "code"]));
 
     // const accessToken = jwt.sign(
     //   { id: newUser.rows[0].id },
@@ -183,8 +183,8 @@ router.post("/login", async (req, res) => {
 
         // Store the refresh token in your database
         await pool.query(
-          "UPDATE refresh_tokens SET token = $1 WHERE user_id = $2",
-          [hashedToken, user.id]
+          "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)",
+          [user.id, hashedToken]
         );
 
         res.send({
@@ -205,12 +205,14 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/verify", async (req, res) => {
+  debug(req.body);
   const { email, code } = req.body;
 
   // Retrieve the user and hashedCode from your database using the email
   const user = await pool.query("SELECT * FROM users WHERE email = $1", [
     email,
   ]);
+  debug(user);
 
   if (user.rows.length === 0) {
     return res.status(400).send("User not found.");
@@ -253,7 +255,7 @@ router.post("/verify", async (req, res) => {
   res.status(201).send({
     accessToken: accessToken,
     refreshToken: refreshToken,
-    user: _.omit(user.rows[0], ["password"]),
+    user: _.omit(user.rows[0], ["password", "code"]),
   });
 });
 
