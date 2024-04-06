@@ -7,6 +7,8 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 import ngrok from "@ngrok/ngrok";
+import { auth, requiredScopes } from "express-oauth2-jwt-bearer";
+import authRouter from "./routes/auth";
 const debug = require("debug")("app");
 require("dotenv").config();
 const expressApp = express();
@@ -19,7 +21,7 @@ const app = expressWsInstance.app;
 
 // const chat = require("./routes/chat");
 import audio from "./routes/audio";
-import auth from "./routes/auth";
+// import auth from "./routes/auth";
 import embeddings from "./routes/embeddings";
 import messages from "./routes/messages";
 import initilizeVoice from "./routes/initializeVoice";
@@ -56,7 +58,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static("uploads"));
 // app.use("/chat", chat);
 app.use("/audio", audio);
-app.use("/auth", auth);
+app.use("/auth", authRouter);
+app.use(
+  auth({
+    audience: process.env.AUTH0_AUDIENCE as string,
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL as string,
+    tokenSigningAlg: "RS256",
+  })
+);
 app.use("/embeddings", embeddings);
 app.use("/messages", messages);
 app.use("/initialize_voice", initilizeVoice);
@@ -64,12 +73,12 @@ app.use("/initialize_voice", initilizeVoice);
 // Create an HTTP server and pass the Express app
 // const server = http.createServer(app);
 
-if (process.env.NODE_ENV === "development") {
-  ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
-    console.log(`Ingress established at: ${listener.url()}`);
-    app.set("ngrokUrl", listener.url());
-  });
-}
+// if (process.env.NODE_ENV === "development") {
+//   ngrok.connect({ addr: 8080, authtoken_from_env: true }).then((listener) => {
+//     console.log(`Ingress established at: ${listener.url()}`);
+//     app.set("ngrokUrl", listener.url());
+//   });
+// }
 
 redisClient.connect().catch((err) => {
   console.error("Error connecting to Redis:", err);
@@ -102,50 +111,47 @@ redisClient.connect().catch((err) => {
 
 // ...
 
-app.ws(
-  "/llm-websocket/:call_id",
-  authenticateWs,
-  async (ws: WebSocket, req: CustomRequest) => {
-    const userId = req.user?.id;
-    // callId is a unique identifier of a call, containing all information about it
-    const callId = req.params.call_id;
-    // const llmClient = new LLMDummyMock();
-    await createSystemMessage(userId ?? "");
-    const llmClient = new LLMClient(userId ?? "");
-
-    // You need to send the first message here, but for now let's skip that.
-
-    // Send Begin message
-    llmClient.beginMessage(ws);
-
-    ws.on("message", async (data: RawData, isBinary: boolean) => {
-      // Retell server will send transcript from caller along with other information
-      // You will be adding code to process and respond here
-      if (isBinary) {
-        console.error("Got binary message instead of text in websocket.");
-        ws.close(1002, "Cannot find corresponding Retell LLM.");
-      }
-      try {
-        const request: RetellRequest = JSON.parse(data.toString());
-        // LLM will think about a response
-        llmClient.chat(request, ws);
-      } catch (err) {
-        console.error("Error in parsing LLM websocket message: ", err);
-        ws.close(1002, "Cannot parse incoming message.");
-      }
-      debug(data);
-    });
-
-    ws.on("error", (err) => {
-      console.error("Error received in LLM websocket client: ", err);
-    });
-  }
-);
-
-app.ws("/chat", authenticateWs, async (ws: WebSocket, req: CustomRequest) => {
-  debug("human connected");
-  debug(req.user?.id); // Access the 'user' property directly
+app.ws("/llm-websocket/:call_id", async (ws: WebSocket, req: CustomRequest) => {
   const userId = req.user?.id;
+  // callId is a unique identifier of a call, containing all information about it
+  const callId = req.params.call_id;
+  // const llmClient = new LLMDummyMock();
+  await createSystemMessage(userId ?? "");
+  const llmClient = new LLMClient(userId ?? "");
+
+  // You need to send the first message here, but for now let's skip that.
+
+  // Send Begin message
+  llmClient.beginMessage(ws);
+
+  ws.on("message", async (data: RawData, isBinary: boolean) => {
+    // Retell server will send transcript from caller along with other information
+    // You will be adding code to process and respond here
+    if (isBinary) {
+      console.error("Got binary message instead of text in websocket.");
+      ws.close(1002, "Cannot find corresponding Retell LLM.");
+    }
+    try {
+      const request: RetellRequest = JSON.parse(data.toString());
+      // LLM will think about a response
+      llmClient.chat(request, ws);
+    } catch (err) {
+      console.error("Error in parsing LLM websocket message: ", err);
+      ws.close(1002, "Cannot parse incoming message.");
+    }
+    debug(data);
+  });
+
+  ws.on("error", (err) => {
+    console.error("Error received in LLM websocket client: ", err);
+  });
+});
+
+app.ws("/chat", async (ws: WebSocket, req: CustomRequest) => {
+  debug("human connected");
+  const auth = req.auth;
+  debug(auth);
+  const userId = auth?.payload.sub;
 
   if (!userId) {
     ws.close(4000, "No user id provided");

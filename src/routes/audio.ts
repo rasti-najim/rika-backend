@@ -10,7 +10,7 @@ const debug = require("debug")("app:audio");
 import Replicate from "replicate";
 require("dotenv").config();
 
-import authenticate from "../middleware/authenticate";
+import authenticate, { checkJwt } from "../middleware/authenticate";
 import tools from "../function_calls/functions";
 import openai from "../utils/openaiClient";
 
@@ -44,7 +44,7 @@ const mkdirAsync = util.promisify(fs.mkdir);
 
 const uploadsDir = "uploads";
 
-router.get("/", authenticate, (req, res) => {
+router.get("/", checkJwt, (req, res) => {
   res.send("Audio");
 });
 

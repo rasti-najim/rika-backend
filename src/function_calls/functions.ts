@@ -193,6 +193,42 @@ const tools: OpenAI.Chat.ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "inner_monologue",
+      description:
+        "Write an inner monologue reflecting on the contents of the message .",
+      parameters: {
+        type: "object",
+        properties: {
+          thought: {
+            type: "string",
+            description: "This is your inner monologue.",
+          },
+        },
+        required: ["thought"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "knowledge_graph_insert",
+      description:
+        "Construct a neo4j knowledge graph for the given text using cypher. Only write the cypher query to create the graph.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "Cypher query to create the knowledge graph.",
+          },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
 
 export default tools;

@@ -1,18 +1,20 @@
 import express, { Response } from "express";
-import authenticate from "../middleware/authenticate";
+import authenticate, { checkJwt } from "../middleware/authenticate";
 import { CustomRequest } from "../utils/types/express";
 import { retellClient } from "../db";
 const debug = require("debug")("app:intialize_voice");
 
 const router = express.Router();
 
-router.post("/", authenticate, async (req: CustomRequest, res: Response) => {
-  const userId = req.user?.id;
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+router.post("/", async (req: CustomRequest, res: Response) => {
+  // const userId = req.user?.id;
+  const auth = req.auth;
+  const userId = auth?.payload.sub;
+  // const authHeader = req.headers["authorization"];
+  // const token = authHeader && authHeader.split(" ")[1];
   const ngrokUrl = req.app.get("ngrokUrl");
   const wssUrl =
-    ngrokUrl.replace("https", "wss") + "/llm-websocket?token=" + token;
+    ngrokUrl.replace("https", "wss") + "/llm-websocket?token=" + auth?.token;
 
   try {
     let agentId;

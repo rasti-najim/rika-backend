@@ -1,0 +1,1 @@
+function createKnowledgeGraph(cypherCode: string) {}

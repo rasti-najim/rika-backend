@@ -40,6 +40,36 @@ type RefreshToken = {
   expires_at: Date;
 };
 
+router.post("/hook", async (req, res) => {
+  const { userId, email, secret } = req.body;
+  debug(req.body);
+
+  if (secret !== process.env.AUTH0_HOOK_SECRET) {
+    return res.status(403).json({ message: `You must provide the secret 🤫` });
+  }
+
+  try {
+    // await prisma.user.create({
+    //   data: { email },
+    // });
+    await pool.query("INSERT INTO users (user_id, email) VALUES ($1, $2)", [
+      userId,
+      email,
+    ]);
+
+    return res.status(200).json({
+      message: `User with ID: ${userId} has been ${
+        email ? "created" : "updated"
+      } successfully!`,
+      userId: userId,
+      email: email,
+    });
+  } catch (error) {
+    console.error("Failed to create or update user:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Registration route
 router.post("/register", async (req, res) => {
   // Create a new user and hash the password

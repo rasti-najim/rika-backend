@@ -75,27 +75,29 @@ export class LLMChat {
     if (prevMessages.length) messages = [...messages, ...prevMessages];
     messages.push(message);
 
-    const thoughtParams: OpenAI.Chat.ChatCompletionCreateParams = {
-      messages: messages,
-      tools: tools,
-      tool_choice: {
-        type: "function",
-        function: { name: "archival_memory_insert" },
-      },
-      model: "gpt-4-0125-preview",
-    };
+    await this.createThought(messages);
 
-    const thoughtCompletion: OpenAI.Chat.ChatCompletion =
-      await openai.chat.completions.create(thoughtParams);
+    await this.createInnerMonologue(messages);
 
-    if (thoughtCompletion.choices[0].message.tool_calls) {
-      const toolCallArguments = JSON.parse(
-        thoughtCompletion.choices[0].message.tool_calls[0].function.arguments
-      );
-      debug("Thought completion", toolCallArguments.content);
+    // const graphParams: OpenAI.Chat.ChatCompletionCreateParams = {
+    //   messages: messages,
+    //   tools: tools,
+    //   tool_choice: {
+    //     type: "function",
+    //     function: { name: "knowledge_graph_insert" },
+    //   },
+    //   model: "gpt-4-0125-preview",
+    // };
 
-      await archivalMemoryInsert(this.userId, toolCallArguments.content);
-    }
+    // const graphCompletion: OpenAI.Chat.ChatCompletion =
+    //   await openai.chat.completions.create(graphParams);
+
+    // if (graphCompletion.choices[0].message.tool_calls) {
+    //   const toolCallArguments = JSON.parse(
+    //     graphCompletion.choices[0].message.tool_calls[0].function.arguments
+    //   );
+    //   debug("Graph completion", toolCallArguments.query);
+    // }
 
     // Validate and possibly update messages in Redis
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
@@ -137,6 +139,67 @@ export class LLMChat {
     }
 
     ws.send(JSON.stringify(completion));
+  }
+
+  private async createThought(
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
+  ) {
+    try {
+      const thoughtParams: OpenAI.Chat.ChatCompletionCreateParams = {
+        messages: messages,
+        tools: tools,
+        tool_choice: {
+          type: "function",
+          function: { name: "archival_memory_insert" },
+        },
+        model: "gpt-4-0125-preview",
+      };
+
+      const thoughtCompletion: OpenAI.Chat.ChatCompletion =
+        await openai.chat.completions.create(thoughtParams);
+
+      if (thoughtCompletion.choices[0].message.tool_calls) {
+        const toolCallArguments = JSON.parse(
+          thoughtCompletion.choices[0].message.tool_calls[0].function.arguments
+        );
+        debug("Thought completion", toolCallArguments.content);
+
+        await archivalMemoryInsert(this.userId, toolCallArguments.content);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private async createInnerMonologue(
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
+  ) {
+    try {
+      const innterMonologueParams: OpenAI.Chat.ChatCompletionCreateParams = {
+        messages: messages,
+        tools: tools,
+        tool_choice: {
+          type: "function",
+          function: { name: "inner_monologue" },
+        },
+        model: "gpt-4-0125-preview",
+      };
+
+      const innerMonologueCompletion: OpenAI.Chat.ChatCompletion =
+        await openai.chat.completions.create(innterMonologueParams);
+
+      if (innerMonologueCompletion.choices[0].message.tool_calls) {
+        const toolCallArguments = JSON.parse(
+          innerMonologueCompletion.choices[0].message.tool_calls[0].function
+            .arguments
+        );
+        debug("Inner monologue completion", toolCallArguments.thought);
+
+        await archivalMemoryInsert(this.userId, toolCallArguments.thought);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   private async handleToolCalls(

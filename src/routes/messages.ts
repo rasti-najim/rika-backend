@@ -1,14 +1,23 @@
 import express, { Request, Response } from "express";
-import authenticate from "../middleware/authenticate";
+import authenticate, { checkJwt } from "../middleware/authenticate";
 import fetchMessagesFromDatabase from "../utils/fetchMessagesFromDatabase";
 import { CustomRequest } from "../utils/types/express";
+const debug = require("debug")("app:messages");
 
 const router = express.Router();
 
 // Example route for fetching paginated data
-router.get("/", authenticate, async (req: CustomRequest, res: Response) => {
+router.get("/", async (req: CustomRequest, res: Response) => {
   try {
-    const userId = req.user?.id ?? "";
+    const auth = req.auth;
+    debug("Auth: ", auth);
+    const userId = auth?.payload.sub;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // const userId = req.user?.id ?? "";
     // @ts-ignore
     const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
     // @ts-ignore
