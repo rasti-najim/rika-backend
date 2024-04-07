@@ -1,12 +1,12 @@
 const debug = require("debug")("bot-express:core-memory");
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 
 type DatabaseMessage = {
-  message_id: string;
+  id: string;
   user_id: string;
   role: string;
-  content: string;
-  time: Date;
+  message: string;
+  created_at: Date;
 };
 
 /**
@@ -28,11 +28,17 @@ async function textSearch(
   // const _messageLogs = JSON.parse(fs.readFileSync(messagesFile, "utf8")); // Replace with actual message logs.
   // const _messageLogs = await loadMessages(userId);
   // debug(_messageLogs);
-  const result = await pool.query("SELECT * FROM messages WHERE user_id = $1", [
-    userId,
-  ]);
+  // const result = await pool.query("SELECT * FROM messages WHERE user_id = $1", [
+  //   userId,
+  // ]);
 
-  const _messageLogs: DatabaseMessage[] = result.rows;
+  const _messageLogs = await prisma.messages.findMany({
+    where: {
+      user_id: userId,
+    },
+  });
+
+  // const _messageLogs: DatabaseMessage[] = result.rows;
   debug(_messageLogs);
 
   // Filter out messages with roles "system" and "function".
@@ -47,7 +53,7 @@ async function textSearch(
   // Perform case-insensitive search.
   const matches = _messageLogs.filter(
     (d) =>
-      d.content && d.content.toLowerCase().includes(queryString.toLowerCase())
+      d.message && d.message.toLowerCase().includes(queryString.toLowerCase())
   );
 
   console.log(
@@ -87,7 +93,7 @@ async function textSearch(
 async function conversationSearch(
   userId: string,
   query: string,
-  page = 0
+  page: number = 0
 ): Promise<string> {
   const RETRIEVAL_QUERY_DEFAULT_PAGE_SIZE = 5; // Adjust the page size as needed
   const count = RETRIEVAL_QUERY_DEFAULT_PAGE_SIZE;
@@ -103,7 +109,7 @@ async function conversationSearch(
   } else {
     const resultsPref = `Showing ${results.length} of ${total} results (page ${page}/${numPages}):`;
     const resultsFormatted = results.map(
-      (d) => `timestamp: ${d.time}, ${d.role} - ${d.content}`
+      (d) => `timestamp: ${d.created_at}, ${d.role} - ${d.message}`
     );
     resultsStr = `${resultsPref} ${JSON.stringify(resultsFormatted)}`;
   }

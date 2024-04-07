@@ -4,11 +4,15 @@ import { createClient } from "redis";
 import fs from "fs";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { RetellClient } from "retell-sdk";
+import { PrismaClient } from "@prisma/client";
+
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: "/etc/app.env" });
 } else {
   require("dotenv").config();
 }
+
+const prisma = new PrismaClient();
 
 const pc = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY ?? "", // Add default value for PINECONE_API_KEY
@@ -52,4 +56,4 @@ const retellClient = new RetellClient({
   apiKey: process.env.RETELL_API_KEY,
 });
 
-export { client, pool, redisClient, pc, retellClient };
+export { client, pool, redisClient, pc, retellClient, prisma };

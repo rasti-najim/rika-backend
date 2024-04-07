@@ -26,12 +26,12 @@ import archivalMemoryInsert from "../functions/archival_memory_insert";
 interface ChatData {
   userId: string;
   message: OpenAI.Chat.ChatCompletionMessageParam;
-  time: string;
+  time: Date;
 }
 
 type Message = {
   message: OpenAI.Chat.ChatCompletionMessageParam;
-  time: string;
+  time: Date;
 };
 
 export class LLMChat {
@@ -43,7 +43,7 @@ export class LLMChat {
 
   async chat(
     message: OpenAI.Chat.ChatCompletionMessageParam,
-    time: string,
+    time: Date,
     ws: WebSocket
   ) {
     // const { userId, message, time } = data;
@@ -118,11 +118,11 @@ export class LLMChat {
     });
 
     let date = new Date();
-    let dateString = date.toISOString().replace("T", " ").substring(0, 19);
+    // let dateString = date.toISOString().replace("T", " ").substring(0, 19);
 
     let newMessages: Message[] = [
       { message: message, time: time },
-      { message: completion.choices[0].message, time: dateString },
+      { message: completion.choices[0].message, time: date },
     ];
 
     await this.saveNewMessages(this.userId, newMessages, listKey, ttl);
@@ -226,7 +226,8 @@ export class LLMChat {
 
         newMessages.push({
           message: toolMessage,
-          time: new Date().toISOString().replace("T", " ").substring(0, 19),
+          // time: new Date().toISOString().replace("T", " ").substring(0, 19),
+          time: new Date(),
         });
       }
     }
@@ -325,7 +326,7 @@ export class LLMChat {
 export async function chat(
   userId: string,
   message: OpenAI.Chat.ChatCompletionMessageParam,
-  time: string
+  time: Date
 ): Promise<
   | OpenAI.Chat.ChatCompletion
   | OpenAI.Chat.ChatCompletionToolMessageParam
@@ -529,7 +530,7 @@ export async function chat(
 
   const newMessages: Message[] = [
     { message: message, time: time },
-    { message: completion.choices[0].message, time: dateString },
+    { message: completion.choices[0].message, time: date },
   ];
 
   await saveNewMessages(userId, newMessages, listKey, ttl);

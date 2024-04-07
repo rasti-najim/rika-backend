@@ -39,7 +39,8 @@ async function voice(
     completion = await chat(
       userId,
       completion,
-      new Date().toISOString().replace("T", " ").substring(0, 19)
+      // new Date().toISOString().replace("T", " ").substring(0, 19)
+      new Date()
     );
     debug("completion", completion);
     return Promise.resolve(completion);

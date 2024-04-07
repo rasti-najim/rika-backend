@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "production") {
   require("dotenv").config();
 }
 
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 
 const router = express.Router();
 
@@ -49,13 +49,9 @@ router.post("/hook", async (req, res) => {
   }
 
   try {
-    // await prisma.user.create({
-    //   data: { email },
-    // });
-    await pool.query("INSERT INTO users (user_id, email) VALUES ($1, $2)", [
-      userId,
-      email,
-    ]);
+    await prisma.users.create({
+      data: { id: userId, email: email },
+    });
 
     return res.status(200).json({
       message: `User with ID: ${userId} has been ${

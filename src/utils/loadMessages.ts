@@ -1,4 +1,4 @@
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 const debug = require("debug")("app:load_messages");
 
 type DatabaseMessage = {
@@ -22,18 +22,27 @@ type TransformedMessage = {
 async function loadMessages(userId: string): Promise<TransformedMessage[]> {
   debug("loading messages for user", userId);
   try {
-    const result = await pool.query(
-      "SELECT * FROM messages WHERE user_id = $1 ORDER BY time DESC LIMIT 10",
-      [userId]
-    );
-    debug("messages from the database", result.rows);
+    // const result = await pool.query(
+    //   "SELECT * FROM messages WHERE user_id = $1 ORDER BY time DESC LIMIT 10",
+    //   [userId]
+    // );
+    const messages = await prisma.messages.findMany({
+      where: {
+        user_id: userId,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      take: 10,
+    });
+    debug("messages from the database", messages);
 
     // Transform each row to the new format
-    const transformedMessages: TransformedMessage[] = result.rows.map(
-      (row: DatabaseMessage) => {
+    const transformedMessages: TransformedMessage[] = messages.map(
+      (message) => {
         return {
-          role: row.role, // Set the appropriate value for 'role'
-          content: row.content, // Assuming 'content' is a field in your table
+          role: message.role, // Set the appropriate value for 'role'
+          content: message.message, // Assuming 'content' is a field in your table
         };
       }
     );

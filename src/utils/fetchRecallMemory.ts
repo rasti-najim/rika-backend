@@ -1,4 +1,4 @@
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 
 type DatabaseMessage = {
   message_id: string;
@@ -23,17 +23,27 @@ type RecallMessages = {
  */
 async function fetchRecallMemory(userId: string): Promise<RecallMessages[]> {
   try {
-    const query =
-      "SELECT * FROM Messages WHERE user_id = $1 ORDER BY time DESC LIMIT 10";
-    const result = await pool.query(query, [userId]);
+    // const query =
+    //   "SELECT * FROM Messages WHERE user_id = $1 ORDER BY time DESC LIMIT 10";
+    // const result = await pool.query(query, [userId]);
+
+    const result = await prisma.messages.findMany({
+      where: {
+        user_id: userId,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      take: 10,
+    });
 
     // Structure the data in JSON format
-    const messages = result.rows.map((row: DatabaseMessage) => ({
+    const messages = result.map((message) => ({
       message: {
-        role: row.role,
-        content: row.content,
+        role: message.role,
+        content: message.message,
       },
-      time: row.time,
+      time: message.created_at,
     }));
 
     return Promise.resolve(messages);

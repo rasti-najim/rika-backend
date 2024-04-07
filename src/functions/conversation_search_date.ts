@@ -1,12 +1,12 @@
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 const debug = require("debug")("app:conversation_search_date");
 
 type DatabaseMessage = {
-  message_id: string;
+  id: string;
   user_id: string;
   role: string;
-  content: string;
-  time: Date;
+  message: string;
+  created_at: Date;
 };
 
 /**
@@ -57,11 +57,17 @@ async function dateSearch(
   //   (d) => d.message.role !== "system" && d.message.role !== "tool"
   // );
 
-  const result = await pool.query("SELECT * FROM messages WHERE user_id = $1", [
-    userId,
-  ]);
+  // const result = await pool.query("SELECT * FROM messages WHERE user_id = $1", [
+  //   userId,
+  // ]);
 
-  const _messageLogs: DatabaseMessage[] = result.rows;
+  // const _messageLogs: DatabaseMessage[] = result.rows;
+
+  const _messageLogs = await prisma.messages.findMany({
+    where: {
+      user_id: userId,
+    },
+  });
   debug(_messageLogs);
 
   // Validate the start_date and end_date format
@@ -74,7 +80,7 @@ async function dateSearch(
 
   // Match items inside messageLogs
   const matches = _messageLogs.filter((d) => {
-    const extractedDate = _extractDateFromTimestamp(d.time);
+    const extractedDate = _extractDateFromTimestamp(d.created_at);
     const date = extractedDate ? new Date(extractedDate) : null;
     return date && date >= startDateDt && date <= endDateDt;
   });
@@ -116,7 +122,7 @@ async function conversationSearchDate(
   } else {
     const resultsPref = `Showing ${results.length} of ${total} results (page ${page}/${numPages}):`;
     const resultsFormatted = results.map(
-      (d) => `timestamp: ${d.time}, ${d.role} - ${d.content}`
+      (d) => `timestamp: ${d.created_at}, ${d.role} - ${d.message}`
     );
     resultsStr = `${resultsPref} ${JSON.stringify(resultsFormatted)}`;
   }

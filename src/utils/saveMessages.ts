@@ -1,11 +1,11 @@
 import { promises as fs } from "fs";
 import { redisClient } from "../db";
-import { pool } from "../db";
+import { pool, prisma } from "../db";
 import OpenAI from "openai";
 
 type Message = {
   message: OpenAI.Chat.ChatCompletionMessageParam;
-  time: string;
+  time: Date;
 };
 
 // Function to check Redis list length and move messages to PostgreSQL
@@ -22,10 +22,17 @@ async function saveMessages(userId: string, messages: Message[]) {
       // )
       if ("content" in messageObj.message) {
         const { role, content } = messageObj.message;
-        const insertQuery =
-          "INSERT INTO messages (user_id, role, content, time) VALUES ($1, $2, $3, $4)";
-        const values = [userId, role, content, messageObj.time];
-        await pool.query(insertQuery, values);
+        // const insertQuery =
+        //   "INSERT INTO messages (user_id, role, content, time) VALUES ($1, $2, $3, $4)";
+        // const values = [userId, role, content, messageObj.time];
+        // await pool.query(insertQuery, values);
+        await prisma.messages.create({
+          data: {
+            user_id: userId,
+            role: role,
+            message: content as string,
+          },
+        });
       }
     }
   }

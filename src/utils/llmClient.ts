@@ -36,7 +36,7 @@ export interface FunctionCall {
 
 type Message = {
   message: OpenAI.Chat.ChatCompletionMessageParam;
-  time: string;
+  time: Date;
 };
 
 class LLMClient {
@@ -78,7 +78,7 @@ class LLMClient {
       const newMessages: Message[] = newUtternaces.map((utterance) => {
         return {
           message: utterance,
-          time: dateString,
+          time: date,
         };
       });
 
